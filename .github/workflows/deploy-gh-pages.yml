@@ -1,7 +1,6 @@
-name: Deploy status page to Cloudflare
+name: Publish status page to gh-pages
 
-# Publishes the dist/ already built and validated by the monitor workflow. The probe job keeps no hosting
-# credentials; only this job sees the Cloudflare secrets, and it never rebuilds or re-probes.
+# Publishes the validated monitor output for branch-based hosting, without rebuilding or re-probing.
 on:
   workflow_run:
     workflows: ["Site availability monitor"]
@@ -18,11 +17,14 @@ permissions:
 
 # A newer snapshot supersedes a pending one; a running deploy finishes.
 concurrency:
-  group: upp-cloudflare-deploy
+  group: upp-gh-pages
   cancel-in-progress: false
 
 jobs:
   deploy:
+    permissions:
+      contents: write
+      actions: read
     if: >-
       github.ref == 'refs/heads/main' &&
       (github.event_name == 'workflow_dispatch' ||
@@ -66,9 +68,17 @@ jobs:
       - name: Check static output
         run: test -f artifact/dist/index.html
 
-      - name: Publish to Cloudflare
-        uses: cloudflare/wrangler-action@v4
+      - name: Assemble publication payload
+        run: |
+          mkdir -p .deploy/gh-pages
+          cp wrangler.jsonc .deploy/gh-pages/wrangler.jsonc
+          cp -R artifact/dist .deploy/gh-pages/dist
+
+      - name: Publish to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: deploy --config wrangler.jsonc --assets artifact/dist
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./.deploy/gh-pages
+          publish_branch: gh-pages
+          force_orphan: true
+          enable_jekyll: false

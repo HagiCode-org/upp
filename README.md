@@ -105,12 +105,14 @@ Scheduled runs are best effort. GitHub may delay or skip them, so timestamps and
 
 Download the output from the run's **Artifacts** section as `site-availability-<run-id>-<run-attempt>`. The archive contains `checkpoint.json` at its root and the static site under `dist/`.
 
-## Cloudflare deployment
+## Branch-based publication
 
-`.github/workflows/deploy-cloudflare.yml` publishes the artifact's `dist/` as Cloudflare Workers static assets (`wrangler.jsonc`, Worker name `upp`).
+`.github/workflows/deploy-gh-pages.yml` publishes the validated artifact to `gh-pages`, following the OpenSpec Docs publication pattern. The branch contains `dist/` and `wrangler.jsonc` (Worker name `upp`).
 
 - Triggers: `workflow_run` after a successful `Site availability monitor` run on `main`, and `workflow_dispatch` (optional `run_id`; default is the latest successful monitor run).
-- It downloads the monitor artifact and deploys that `dist/`. It does not rebuild or probe, so the published page is exactly what the monitor validated.
-- Only this workflow uses hosting credentials. The monitor workflow still has none.
+- It downloads the monitor artifact and publishes that `dist/`. It does not rebuild or probe, so the published page is exactly what the monitor validated. Checkpoints stay in Actions artifacts and are not published to the branch.
+- Only the publisher has `contents: write`; the monitor remains read-only. Publication uses the built-in `GITHUB_TOKEN`, with no Cloudflare account ID or API token secrets.
 
-Required repository secrets: `CLOUDFLARE_API_TOKEN` (permission: Workers Scripts: Edit) and `CLOUDFLARE_ACCOUNT_ID`. Attach the custom domain (for example `status.hagicode.com`, matching `UPP_SITE_URL`) to the `upp` Worker in the Cloudflare dashboard, or add a `routes` entry to `wrangler.jsonc`.
+Connect the Cloudflare project's Git integration to the `gh-pages` branch. The output is already built: use no install/build step (or a no-op where required), and deploy the root `wrangler.jsonc` with assets in `dist/`. Configure the custom domain in the hosting dashboard. A successful GitHub publication confirms the branch update; the hosting platform manages the subsequent deployment.
+
+Each publication replaces `gh-pages` with a single latest commit (`force_orphan: true`), matching OpenSpec Docs. To roll back, publish a previous successful monitor run using `run_id`; do not rely on branch history. Organization policy must allow the publisher's `GITHUB_TOKEN` to write repository contents.

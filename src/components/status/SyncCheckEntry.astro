@@ -1,16 +1,25 @@
 ---
-import { releaseCountsText, releaseSummaryCopy } from '../../lib/present.mjs';
+import { releaseCountsText, releaseReasonLabel, releaseStateLabel, releaseSummaryCopy } from '../../lib/present.mjs';
 
 interface Props {
   summary: { state: string; counts: { total: number; match: number; mismatch: number; unknown: number } };
+  repositories?: { id: string; name: string; state: string; reason: string | null }[];
 }
 
-const { summary } = Astro.props;
+const { summary, repositories = [] } = Astro.props;
 const copy = releaseSummaryCopy(summary);
 // Astro keeps a non-root base without its trailing slash, so add one before the page path.
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 // The abnormal and incomplete details already carry the counts. The normal detail does not, so the counts line appears only there.
 const showCounts = summary.state === 'normal';
+// A repository without an observation reads as No data, never as a match.
+const cells = repositories.map((repo) => {
+  const label = releaseStateLabel(repo);
+  const shown = label === 'No data' ? 'none' : repo.state;
+  const reason = repo.state === 'unknown' && repo.reason !== 'not-checked' ? `, ${releaseReasonLabel(repo.reason)}` : '';
+  return { repo, shown, label, text: `${repo.name} · ${label}${reason}` };
+});
+const attention = cells.filter((cell) => cell.shown === 'mismatch' || cell.shown === 'unknown');
 ---
 
 <section class="sync-entry" data-release-state={summary.state} aria-labelledby="sync-label sync-heading">
@@ -18,6 +27,28 @@ const showCounts = summary.state === 'normal';
   <h2 id="sync-heading" class="sync-heading">{copy.heading}</h2>
   <p class="sync-detail">{copy.detail}</p>
   {showCounts && <p class="sync-counts">{releaseCountsText(summary.counts)}</p>}
+  {cells.length > 0 && (
+    <div class="sync-matrix" data-readout-scope>
+      <ul class="sync-cells" aria-label="Repository states, mismatches first">
+        {cells.map((cell) => (
+          <li class="sync-cell" data-sync-state={cell.shown} data-readout={cell.text}>
+            <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+              <rect class="sync-box" x="1" y="1" width="14" height="14" rx="3" />
+              {cell.shown === 'mismatch' && <path class="sync-mark" d="M5 5l6 6M11 5l-6 6" />}
+              {cell.shown === 'unknown' && <path class="sync-mark" d="M5.5 6.2a2.6 2.6 0 1 1 3.6 2.4c-.7.4-1.1.8-1.1 1.6M8 12v.2" />}
+            </svg>
+            <span class="visually-hidden">{cell.text}</span>
+          </li>
+        ))}
+      </ul>
+      <p class="readout" data-readout-target data-readout-default="Point at a square to read the repository." aria-hidden="true">Point at a square to read the repository.</p>
+    </div>
+  )}
+  {attention.length > 0 && (
+    <p class="sync-attention">
+      {attention.map((cell, index) => <>{index > 0 && ', '}{cell.repo.name} ({cell.label.toLowerCase()})</>)}
+    </p>
+  )}
   <p class="sync-link">
     <a href={`${base}release-hashes/`}>View release hash status</a>
   </p>

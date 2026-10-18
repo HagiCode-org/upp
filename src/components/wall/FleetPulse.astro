@@ -1,0 +1,106 @@
+---
+import { PULSE, pulseChart } from '../../lib/wall-charts.mjs';
+import { formatMs } from '../../lib/wall.mjs';
+
+interface Props {
+  runs: { runKey: string; at: number; total: number; up: number; down: number; measured: number; medianMs: number | null; lowMs: number | null; highMs: number | null }[];
+  intervalSeconds: number;
+  staleAfterSeconds: number;
+}
+
+const { runs, intervalSeconds, staleAfterSeconds } = Astro.props;
+const chart = pulseChart(runs, { gapSeconds: staleAfterSeconds });
+const newest = chart.columns[chart.columns.length - 1];
+const sparse = runs.length < 2;
+const gridLines = chart.yTicks.map((tick) => tick.y);
+---
+
+<section class="panel pulse" aria-labelledby="pulse-heading" data-panel="pulse">
+  <header class="panel-head">
+    <h2 id="pulse-heading">Fleet pulse</h2>
+    <p class="panel-note">Every probe at each monitor run, about every {intervalSeconds / 60} minutes</p>
+  </header>
+  {runs.length === 0 ? (
+    <p class="panel-empty">No observations yet. The pulse appears after the first monitoring run.</p>
+  ) : (
+    <div class="chart" data-readout-scope>
+      <div class="chart-scroll" tabindex="0" role="group" aria-label="Fleet pulse chart, scrolls sideways on narrow screens">
+      <div class="chart-frame" style={`aspect-ratio:${PULSE.width} / ${PULSE.height}`}>
+        <svg class="chart-svg" viewBox={`0 0 ${chart.width} ${chart.height}`} role="img" aria-labelledby="pulse-title pulse-desc" focusable="false">
+          <title id="pulse-title">Fleet pulse</title>
+          <desc id="pulse-desc">Median response time with the middle 80 percent of probes, and the number of probes down, at each of {runs.length} monitor runs. The values are listed in the table after the chart.</desc>
+          {gridLines.map((y) => (
+            <line class="grid" x1={chart.left} x2={chart.right} y1={y} y2={y} />
+          ))}
+          <line class="lane-base" x1={chart.left} x2={chart.right} y1={chart.laneBottom} y2={chart.laneBottom} />
+          <g class="pulse-plot">
+            {chart.bandPaths.map((d) => <path class="pulse-band" d={d} />)}
+            {chart.medianPaths.map((d) => <path class="pulse-median" d={d} />)}
+          </g>
+          {chart.columns.map((column, index) => (
+            <g class="column" data-latest={index === chart.columns.length - 1 ? 'true' : undefined} style={`--i:${index}`}>
+              <line class="guide" x1={column.x} x2={column.x} y1={chart.topPlot - 4} y2={chart.laneBottom} />
+              <rect
+                class="down-bar"
+                data-down={column.run.down > 0 ? 'true' : 'false'}
+                x={column.barX}
+                y={column.downY}
+                width={chart.barWidth}
+                height={column.downHeight}
+              />
+              {column.medianY !== null && <circle class="median-dot" cx={column.x} cy={column.medianY} r="3.2" />}
+              <rect
+                class="hit"
+                x={column.hitX}
+                y={chart.topPlot - 4}
+                width={column.hitWidth}
+                height={chart.laneBottom - chart.topPlot + 8}
+                role="img"
+                tabindex={index === chart.columns.length - 1 ? '0' : '-1'}
+                aria-label={column.label}
+                data-readout={column.label}
+              />
+            </g>
+          ))}
+        </svg>
+        {chart.yTicks.map((tick) => (
+          <span class="axis-label axis-y" style={`top:${tick.top}%`}>{tick.label}</span>
+        ))}
+        <span class="axis-label axis-lane" style={`top:${chart.laneLabel.top}%`}>Probes down, scale 0 to {chart.laneLabel.maxLabel}</span>
+        {chart.xTicks.map((tick) => (
+          <span class="axis-label axis-x" style={`left:${tick.left}%`}>{tick.label}</span>
+        ))}
+      </div>
+      </div>
+      <p class="readout" data-readout-target data-readout-default={newest.label}>
+        <span class="readout-tag">Latest run</span> {newest.label}
+      </p>
+      <ul class="legend" aria-hidden="true">
+        <li><svg viewBox="0 0 22 10"><path class="pulse-median" d="M1 5H21" /></svg>Median response time</li>
+        <li><svg viewBox="0 0 22 10"><rect class="pulse-band" x="1" y="1" width="20" height="8" /></svg>Middle 80% of probes</li>
+        <li><svg viewBox="0 0 22 10"><rect class="down-bar" data-down="true" x="7" y="1" width="8" height="8" /></svg>Probes down</li>
+      </ul>
+      {sparse && (
+        <p class="panel-note">One run is recorded so far. The trend fills in as later runs are observed. A gap between runs is drawn as a gap.</p>
+      )}
+      <div class="visually-hidden">
+      <table>
+        <caption>Fleet pulse values per monitor run, {formatMs(chart.yMax)} at the top of the axis</caption>
+        <thead>
+          <tr><th scope="col">Run (UTC)</th><th scope="col">Probes</th><th scope="col">Down</th><th scope="col">Median response</th></tr>
+        </thead>
+        <tbody>
+          {chart.columns.map((column) => (
+            <tr>
+              <th scope="row">{column.label.split(' · ')[0]}</th>
+              <td>{column.run.total}</td>
+              <td>{column.run.down}</td>
+              <td>{formatMs(column.run.medianMs)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      </div>
+    </div>
+  )}
+</section>

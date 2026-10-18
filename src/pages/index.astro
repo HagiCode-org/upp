@@ -1,43 +1,52 @@
 ---
 import StatusLayout from '../layouts/StatusLayout.astro';
 import StatusSummary from '../components/status/StatusSummary.astro';
-import ServiceStatus from '../components/status/ServiceStatus.astro';
 import SyncCheckEntry from '../components/status/SyncCheckEntry.astro';
+import FleetPulse from '../components/wall/FleetPulse.astro';
+import LatencyLanes from '../components/wall/LatencyLanes.astro';
+import FamilyBoard from '../components/wall/FamilyBoard.astro';
 import { loadReleaseData } from '../lib/load-release-hash.mjs';
 import { loadStatusData } from '../lib/load-status.mjs';
 import { summarizeOverall } from '../lib/status.mjs';
-import { summarizeReleaseHashes } from '../lib/release-hash.mjs';
+import { orderForDisplay, summarizeReleaseHashes } from '../lib/release-hash.mjs';
+import { fleetRuns, groupFamilies, kindLanes } from '../lib/wall.mjs';
 
 const { snapshot, source } = await loadStatusData();
 const summary = summarizeOverall(snapshot);
 const { snapshot: releaseSnapshot } = await loadReleaseData();
 const releaseSummary = summarizeReleaseHashes(releaseSnapshot);
+const families = groupFamilies(snapshot);
+const runs = fleetRuns(snapshot);
+const lanes = kindLanes(snapshot);
 const title = 'Service status';
 const description = 'Observed availability of HagiCode sites, with the time of each last check.';
 ---
 
-<StatusLayout title={title} description={description}>
+<StatusLayout title={title} description={description} wide>
   <h1 class="page-title">{title}</h1>
-  <StatusSummary snapshot={snapshot} summary={summary} source={source} />
-  <SyncCheckEntry summary={releaseSummary} />
-  <section class="services-section" aria-labelledby="services-heading">
-    <h2 id="services-heading">Services</h2>
-    {snapshot.sites.length === 0 ? (
-      <p>No sites configured.</p>
-    ) : (
-      <ol class="services">
-        {snapshot.sites.map((site) => (
-          <li>
-            <ServiceStatus site={site} generatedAt={snapshot.generatedAt} />
-          </li>
-        ))}
-      </ol>
+  <div class="wall">
+    <StatusSummary snapshot={snapshot} summary={summary} source={source} />
+    {snapshot.sites.length > 0 && (
+      <>
+        <FleetPulse runs={runs} intervalSeconds={snapshot.checkIntervalSeconds} staleAfterSeconds={snapshot.staleAfterSeconds} />
+        <LatencyLanes lanes={lanes} />
+      </>
     )}
-  </section>
+    <SyncCheckEntry summary={releaseSummary} repositories={orderForDisplay(releaseSnapshot.repositories)} />
+    <section class="services-section" aria-labelledby="services-heading">
+      <h2 id="services-heading">Services</h2>
+      {snapshot.sites.length === 0 ? (
+        <p>No sites configured.</p>
+      ) : (
+        <FamilyBoard families={families} generatedAt={snapshot.generatedAt} />
+      )}
+    </section>
+  </div>
   <p class="machine-readable">
     Machine-readable snapshot: <a href={`${import.meta.env.BASE_URL}status.json`}>status.json</a>
   </p>
   <script>
     import '../scripts/status-freshness.js';
+    import '../scripts/wall-readout.js';
   </script>
 </StatusLayout>

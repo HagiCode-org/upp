@@ -1,5 +1,7 @@
 ---
 import { FRESHNESS_NOTE, formatUtc, overallCopy } from '../../lib/present.mjs';
+import { STALE_AFTER_SECONDS, ageSeconds } from '../../lib/status.mjs';
+import { describeAge } from '../../lib/wall.mjs';
 
 interface Props {
   snapshot: { generatedAt: string; sites: { latest: { checkedAt: string } | null }[] };
@@ -15,30 +17,61 @@ const observed = snapshot.sites
   .sort();
 const newest = observed.length > 0 ? observed[observed.length - 1] : null;
 const staleAtBuild = summary.counts.stale > 0;
+const { counts } = summary;
+// The bar is a picture of the same counts the "Enabled services" line states in words.
+const segments = [
+  { name: 'up', value: counts.up },
+  { name: 'down', value: counts.down },
+  { name: 'none', value: counts.noData },
+].filter((segment) => segment.value > 0);
+// Age of the newest observation when the snapshot was generated. The browser replaces it with the age on the visitor's clock.
+const ageAtSnapshot = newest === null ? null : ageSeconds(Date.parse(newest), Date.parse(snapshot.generatedAt));
+const ageRatio = ageAtSnapshot === null ? 0 : Math.min(1, ageAtSnapshot / STALE_AFTER_SECONDS);
 ---
 
 <section class="summary" data-overall-state={summary.state} aria-labelledby="summary-heading">
-  <h2 id="summary-heading" class="summary-heading">{copy.heading}</h2>
-  <p class="summary-detail">{copy.detail}</p>
-  <p class="overall-warning" data-overall-warning role="status" hidden={!staleAtBuild}>
-    Monitoring data delayed: the newest observation is older than the freshness threshold.
-  </p>
-  <dl class="summary-facts">
-    <div>
-      <dt>Snapshot generated</dt>
-      <dd><time datetime={snapshot.generatedAt}>{formatUtc(snapshot.generatedAt)}</time></dd>
+  <div class="summary-lead">
+    <h2 id="summary-heading" class="summary-heading">{copy.heading}</h2>
+    <p class="summary-detail">{copy.detail}</p>
+    <p class="overall-warning" data-overall-warning role="status" hidden={!staleAtBuild}>
+      Monitoring data delayed: the newest observation is older than the freshness threshold.
+    </p>
+    {segments.length > 0 && (
+      <div class="composition" aria-hidden="true">
+        {segments.map((segment) => (
+          <span class="composition-segment" data-part={segment.name} style={`flex-grow:${segment.value}`}></span>
+        ))}
+      </div>
+    )}
+    <dl class="summary-facts">
+      <div>
+        <dt>Snapshot generated</dt>
+        <dd><time datetime={snapshot.generatedAt}>{formatUtc(snapshot.generatedAt)}</time></dd>
+      </div>
+      <div>
+        <dt>Newest observation</dt>
+        <dd>
+          {newest ? <time datetime={newest}>{formatUtc(newest)}</time> : 'No observations'}
+        </dd>
+      </div>
+      <div>
+        <dt>Enabled services</dt>
+        <dd>{summary.counts.total} total · {summary.counts.up} up · {summary.counts.down} down · {summary.counts.noData} no data</dd>
+      </div>
+    </dl>
+  </div>
+  {newest !== null && (
+    <div class="age" data-age data-newest={newest} data-stale={ageRatio >= 1 ? 'true' : 'false'}>
+      <p class="age-head">
+        <span class="age-label">Age of newest observation</span>
+        <span class="age-value" data-age-value>{describeAge(ageAtSnapshot)} old at snapshot</span>
+      </p>
+      <div class="age-track" aria-hidden="true">
+        <span class="age-fill" data-age-fill style={`--age:${ageRatio.toFixed(3)}`}></span>
+      </div>
+      <p class="age-scale" aria-hidden="true"><span>0</span><span>overdue after {STALE_AFTER_SECONDS / 60} min</span></p>
     </div>
-    <div>
-      <dt>Newest observation</dt>
-      <dd>
-        {newest ? <time datetime={newest}>{formatUtc(newest)}</time> : 'No observations'}
-      </dd>
-    </div>
-    <div>
-      <dt>Enabled services</dt>
-      <dd>{summary.counts.total} total · {summary.counts.up} up · {summary.counts.down} down · {summary.counts.noData} no data</dd>
-    </div>
-  </dl>
+  )}
   {source === 'no-data' && (
     <p class="notice">
       No monitoring snapshot is present in this build. Results appear after a monitoring run. Building or viewing this page made no monitoring requests.

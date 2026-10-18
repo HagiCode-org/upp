@@ -1,0 +1,81 @@
+---
+import { laneChart } from '../../lib/wall-charts.mjs';
+import { formatMs } from '../../lib/wall.mjs';
+
+interface Props {
+  lanes: { kind: string; label: string; noData: number; medianMs: number | null; probes: { id: string; name: string; state: string; down: boolean; ms: number | null; httpStatus: number | null }[] }[];
+}
+
+const { lanes } = Astro.props;
+const chart = laneChart(lanes);
+const probeCount = lanes.reduce((sum, lane) => sum + lane.probes.length, 0);
+const silentCount = chart.lanes.reduce((sum, lane) => sum + lane.silent.length, 0);
+
+function dotLabel(dot) {
+  const result = dot.down ? 'down' : 'up';
+  const status = dot.httpStatus === null ? '' : `, HTTP ${dot.httpStatus}`;
+  return `${dot.name} · ${result}${status} · ${formatMs(dot.ms)}`;
+}
+---
+
+<section class="panel lanes" aria-labelledby="lanes-heading" data-panel="lanes">
+  <header class="panel-head">
+    <h2 id="lanes-heading">Response time by endpoint</h2>
+    <p class="panel-note">Latest result of each probe, on a log scale</p>
+  </header>
+  {probeCount === 0 ? (
+    <p class="panel-empty">No response times yet. They appear after the first monitoring run.</p>
+  ) : (
+    <div class="chart" data-readout-scope>
+      <div class="chart-scroll" tabindex="0" role="group" aria-label="Response time chart, scrolls sideways on narrow screens">
+      <div class="chart-frame" style={`aspect-ratio:${chart.width} / ${chart.height}`}>
+        <svg class="chart-svg" viewBox={`0 0 ${chart.width} ${chart.height}`} role="img" aria-labelledby="lanes-title lanes-desc" focusable="false">
+          <title id="lanes-title">Response time by endpoint</title>
+          <desc id="lanes-desc">
+            {lanes.map((lane) => `${lane.label}: ${lane.probes.length} probes, median ${formatMs(lane.medianMs)}. `)}
+          </desc>
+          {chart.ticks.map((tick) => (
+            <line class="grid" x1={tick.x} x2={tick.x} y1="0" y2={chart.axisTop} />
+          ))}
+          {chart.lanes.map((lane) => (
+            <g class="lane" style={`--lane:${lane.top}`}>
+              <line class="lane-base" x1="14" x2={chart.width - 6} y1={lane.mid} y2={lane.mid} />
+              {lane.median && <line class="median-mark" x1={lane.median.x} x2={lane.median.x} y1={lane.mid - 17} y2={lane.mid + 17} />}
+              {[...lane.dots, ...lane.silent].map((dot, index) => (
+                <g class="dot" data-state={dot.down ? 'down' : dot.state} data-readout={dotLabel(dot)} style={`--i:${index}`}>
+                  {dot.down ? (
+                    <path class="dot-x" d={`M${dot.cx - 4} ${dot.cy - 4}L${dot.cx + 4} ${dot.cy + 4}M${dot.cx + 4} ${dot.cy - 4}L${dot.cx - 4} ${dot.cy + 4}`} />
+                  ) : (
+                    <circle class="dot-up" cx={dot.cx} cy={dot.cy} r={chart.radius - 0.5} />
+                  )}
+                  <circle class="dot-hit" cx={dot.cx} cy={dot.cy} r="9" />
+                </g>
+              ))}
+            </g>
+          ))}
+        </svg>
+        {chart.lanes.map((lane) => (
+          <span class="lane-label" style={`top:${lane.labelTop}%`}>
+            <strong>{lane.label}</strong>
+            <span>
+              {lane.probes.length} probes{lane.medianMs !== null && ` · median ${formatMs(lane.medianMs)}`}{lane.noData > 0 && ` · ${lane.noData} no data`}
+            </span>
+          </span>
+        ))}
+        {chart.ticks.map((tick) => (
+          <span class="axis-label axis-x" style={`left:${tick.left}%;top:${(100 * (chart.axisTop + 6)) / chart.height}%`}>{tick.label}</span>
+        ))}
+        {silentCount > 0 && (
+          <span class="axis-label axis-x" style={`left:${chart.gutterLeft}%;top:${(100 * (chart.axisTop + 6)) / chart.height}%`}>none</span>
+        )}
+      </div>
+      </div>
+      <p class="readout" data-readout-target data-readout-default="Point at a dot to read the probe.">Point at a dot to read the probe.</p>
+      <ul class="legend" aria-hidden="true">
+        <li><svg viewBox="0 0 22 10"><circle class="dot-up" cx="11" cy="5" r="4" /></svg>Up</li>
+        <li><svg viewBox="0 0 22 10"><path class="dot-x" d="M7 1L15 9M15 1L7 9" /></svg>Down</li>
+        <li><svg viewBox="0 0 22 10"><path class="median-mark" d="M11 0V10" /></svg>Median</li>
+      </ul>
+    </div>
+  )}
+</section>

@@ -1,0 +1,88 @@
+---
+import ServiceStatus from '../status/ServiceStatus.astro';
+import { RECENT_CHECK_LIMIT } from '../../lib/status.mjs';
+import { KIND_LABEL, KIND_ORDER, formatMs, formatShare } from '../../lib/wall.mjs';
+
+interface Props {
+  families: { key: string; name: string; state: string; probes: Record<string, { site: any; kind: string; state: string }>; sites: any[]; pooled: { up: number; total: number; percent: number | null } }[];
+  generatedAt: string;
+}
+
+const { families, generatedAt } = Astro.props;
+
+const STATE_WORD = { up: 'Up', down: 'Down', stale: 'Up, overdue', none: 'No data' };
+const SLOT = 5;
+
+// Oldest check on the left, newest on the right. Slots without a check stay as ghost marks, so a short history reads as short.
+function strip(site) {
+  const checks = [...site.recentChecks].reverse();
+  const offset = RECENT_CHECK_LIMIT - checks.length;
+  const slots = [];
+  for (let index = 0; index < RECENT_CHECK_LIMIT; index += 1) {
+    const check = checks[index - offset];
+    slots.push({ x: index * SLOT, state: check ? check.status : 'ghost' });
+  }
+  return slots;
+}
+
+function cellWord(probe) {
+  const latest = probe.site.latest;
+  const measure = latest?.responseTimeMs != null ? `, ${formatMs(latest.responseTimeMs)}` : '';
+  return `${KIND_LABEL[probe.kind]}: ${STATE_WORD[probe.state]}${measure}`;
+}
+---
+
+<div class="board-head" aria-hidden="true">
+  <span class="board-head-name">Service</span>
+  {KIND_ORDER.map((kind) => <span class="board-head-kind">{KIND_LABEL[kind]}</span>)}
+  <span class="board-head-share">Checks up</span>
+</div>
+<ol class="board">
+  {families.map((family) => (
+    <li class="family" data-family-state={family.state} data-family={family.key.split('\u0000')[0]}>
+      <details>
+        <summary class="family-row">
+          <span class="family-name">
+            {family.name}
+            <span class="visually-hidden">: {STATE_WORD[family.state]}</span>
+          </span>
+          {KIND_ORDER.map((kind) => {
+            const probe = family.probes[kind];
+            return probe ? (
+              <span class="cell" data-kind={kind} data-state={probe.state} data-cell-site={probe.site.id}>
+                <span class="cell-top">
+                  <svg class="glyph" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+                    <circle class="g-fill" cx="6" cy="6" r="4.5" />
+                    <circle class="g-ring" cx="6" cy="6" r="4.5" />
+                    <circle class="g-dot" cx="6" cy="6" r="1.6" />
+                    <path class="g-cross" d="M3.9 3.9l4.2 4.2M8.1 3.9l-4.2 4.2" />
+                  </svg>
+                  <span class="cell-kind">{KIND_LABEL[kind]}</span>
+                  <span class="cell-ms" aria-hidden="true">{probe.site.latest?.responseTimeMs != null ? formatMs(probe.site.latest.responseTimeMs) : '–'}</span>
+                </span>
+                <svg class="strip" viewBox={`0 0 ${RECENT_CHECK_LIMIT * SLOT - 1} 12`} aria-hidden="true" focusable="false">
+                  {strip(probe.site).map((slot) => (
+                    <rect class="tick" data-tick={slot.state} x={slot.x} width="4" y={slot.state === 'down' ? 0 : slot.state === 'up' ? 4 : 10.5} height={slot.state === 'down' ? 12 : slot.state === 'up' ? 8 : 1.5} />
+                  ))}
+                </svg>
+                <span class="visually-hidden">{cellWord(probe)}</span>
+              </span>
+            ) : (
+              <span class="cell cell-empty" aria-hidden="true"></span>
+            );
+          })}
+          <span class="family-share" title={family.pooled.total > 0 ? `${family.pooled.up} of ${family.pooled.total} observed checks up` : undefined}>
+            {family.pooled.percent === null ? 'No data' : formatShare(family.pooled.percent)}
+            <span class="visually-hidden"> of observed checks up</span>
+          </span>
+          <svg class="chevron" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M3 4.5L6 7.5L9 4.5" /></svg>
+        </summary>
+        <div class="family-detail">
+          {family.sites.map((site) => (
+            <ServiceStatus site={site} generatedAt={generatedAt} />
+          ))}
+        </div>
+      </details>
+    </li>
+  ))}
+</ol>

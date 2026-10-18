@@ -150,3 +150,26 @@ test('a snapshot that omits an enabled site fails the build as incomplete covera
     },
   );
 });
+
+test('the homepage groups probes into a board and draws the charts from the snapshot', async () => {
+  const result = await build({ snapshot: 'all-up', name: 'wall' });
+  assert.equal(result.ok, true, result.error);
+  const html = await readFile(join(result.outDir, 'index.html'), 'utf8');
+  assert.match(html, /data-panel="pulse"/);
+  assert.match(html, /data-panel="lanes"/);
+  // The fixture names one page probe and its sitemap and robots probes, so they form a single family row.
+  assert.equal(count(html, /class="family"/g), 1);
+  assert.equal(count(html, /data-cell-site=/g), 3);
+  assert.equal(count(html, /<span class="age-value"/g), 1);
+  assert.match(html, /Probes down, scale 0 to 1/);
+});
+
+test('with no snapshot the wall draws no chart from invented data', async () => {
+  const result = await build({ name: 'wall-no-data' });
+  assert.equal(result.ok, true, result.error);
+  const html = await readFile(join(result.outDir, 'index.html'), 'utf8');
+  assert.match(html, /No observations yet/);
+  assert.match(html, /No response times yet/);
+  assert.equal(count(html, /<span class="age-value"/g), 0);
+  assert.equal(count(html, /class="pulse-median"/g), 0);
+});

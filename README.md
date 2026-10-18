@@ -106,6 +106,20 @@ Scheduled runs are best effort. GitHub may delay or skip them, so timestamps and
 
 Download the output from the run's **Artifacts** section as `site-availability-<run-id>-<run-attempt>`. The archive contains `checkpoint.json` at its root and the static site under `dist/`.
 
+## Homepage data wall
+
+The homepage reads the same validated snapshot as `status.json` and draws it as a wall instead of a list of services. Nothing on it is measured separately.
+
+- **Verdict band:** the overall state, a bar of up, down and no-data probes, and how old the newest observation is. The age is recomputed on the visitor's clock every 30 seconds.
+- **Fleet pulse:** per monitor run, the median response time with the middle 80% of probes, and how many probes were down. Runs more than the freshness threshold apart are drawn as separate segments, so a gap stays a gap.
+- **Response time by endpoint:** the latest response of every probe on a log scale, one lane per endpoint kind (page, sitemap, robots, RSS). A probe that never answered sits in a separate "no response" column.
+- **Service board:** probes grouped into families by display name (`Docs`, `Docs Sitemap`, `Docs Robots`, `Docs RSS` form one row). Families with a down probe come first. A row opens to the full per-probe facts and recent checks.
+- **Sync check:** one square per repository, mismatches first, with the same counts and link as before.
+
+The charts are static SVG. `d3-scale` and `d3-shape` run only at build time and compute geometry in `src/lib/wall-charts.mjs`. Derived series live in `src/lib/wall.mjs`. The page ships a few lines of script for freshness and for the hover or focus readout. Every value is also present as text or in a visually hidden table, and the entrance animation is skipped under `prefers-reduced-motion`.
+
+Grouping uses the display names, so renaming a probe can move it to another row. It never changes a probe's identity or history.
+
 ## Release hash status
 
 `/release-hashes/` compares each registered repository's `main` head commit on GitHub with the commit its published site was built from, read from `/.well-known/hagilight.metadata.json`. The page is cross-linked from the service status page, and the same validated data is served as `/release-hash.json`.

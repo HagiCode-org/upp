@@ -16,6 +16,7 @@
     "build": "astro build",
     "dev": "astro dev",
     "monitor": "node scripts/monitor/run.mjs",
+    "release-check": "node scripts/release-hash/run.mjs",
     "test": "node --test \"tests/**/*.test.mjs\""
   },
   "engines": {

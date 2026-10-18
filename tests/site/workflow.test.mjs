@@ -45,3 +45,26 @@ test('the monitor runs before the build, and the artifact is staged and uploaded
 test('no step continues after a failure, so infrastructure errors fail the workflow', () => {
   assert.equal(steps.some((step) => step['continue-on-error']), false);
 });
+
+test('the release check runs after the monitor and before the build, with its own budget', () => {
+  const monitor = indexOf((step) => step.run === 'npm run monitor');
+  const release = indexOf((step) => step.run === 'npm run release-check');
+  const build = indexOf((step) => step.run === 'npm run build');
+  assert.ok(monitor >= 0 && release > monitor && build > release);
+  assert.equal(steps[release].name, 'Check release hashes');
+  assert.equal(steps[release].env.UPP_RELEASE_CHECK_BUDGET_MS, '120000');
+  assert.equal(steps[release]['continue-on-error'], undefined);
+});
+
+test('the release check keeps the read-only permissions and fits the job timeout with the monitor budget', () => {
+  assert.deepEqual(workflow.permissions, { contents: 'read', actions: 'read' });
+  assert.equal(job['timeout-minutes'], 15);
+  const release = indexOf((step) => step.run === 'npm run release-check');
+  const budgets = Number(job.env.UPP_RUN_BUDGET_MS) + Number(steps[release].env.UPP_RELEASE_CHECK_BUDGET_MS);
+  assert.ok(budgets <= job['timeout-minutes'] * 60_000);
+});
+
+test('the staged artifact copies the whole dist directory, so the release snapshot ships with the static output', () => {
+  const stage = steps.find((step) => typeof step.run === 'string' && step.run.includes('artifact/checkpoint.json'));
+  assert.match(stage.run, /cp -r dist artifact\/dist/);
+});

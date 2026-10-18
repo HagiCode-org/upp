@@ -1,0 +1,77 @@
+---
+import { isStale } from '../../lib/status.mjs';
+import { formatPercent, formatUtc, outcomeDetail, outcomeLabel } from '../../lib/present.mjs';
+
+interface Props {
+  site: { id: string; name: string; publicUrl: string | null; latest: { status: string; checkedAt: string; httpStatus: number | null; responseTimeMs: number | null; failureCategory: string | null } | null; window: { availabilityPercent: number | null; successfulChecks: number; totalChecks: number; firstObservedAt: string | null }; recentChecks: { status: string; checkedAt: string; httpStatus: number | null; responseTimeMs: number | null; failureCategory: string | null }[] };
+  generatedAt: string;
+}
+
+const { site, generatedAt } = Astro.props;
+const latest = site.latest;
+const headingId = `service-${site.id}`;
+const overdueAtBuild = latest !== null && isStale(latest.checkedAt, Date.parse(generatedAt));
+const percent = formatPercent(site.window.availabilityPercent);
+const publicLink = site.publicUrl ? new URL(site.publicUrl) : null;
+---
+
+<article class="service" data-site-id={site.id} data-outcome={latest ? latest.status : 'none'} aria-labelledby={headingId}>
+  <header class="service-header">
+    <h2 id={headingId} class="service-name">{site.name}</h2>
+    <p class="outcome">
+      <span class="outcome-label">{outcomeLabel(latest)}</span>
+      <span class="outcome-detail">{outcomeDetail(latest)}</span>
+    </p>
+  </header>
+  <dl class="service-facts">
+    <div>
+      <dt>Last observed</dt>
+      <dd>
+        {latest ? (
+          <time datetime={latest.checkedAt} data-observed-at={latest.checkedAt}>{formatUtc(latest.checkedAt)}</time>
+        ) : (
+          'No data'
+        )}
+      </dd>
+    </div>
+    <div>
+      <dt>Response time</dt>
+      <dd>{latest?.responseTimeMs != null ? `${latest.responseTimeMs} ms` : 'No measurement'}</dd>
+    </div>
+    <div>
+      <dt>Observed-check availability</dt>
+      <dd>
+        {percent ? (
+          <>
+            {percent} ({site.window.successfulChecks} of {site.window.totalChecks} observed checks, first {formatUtc(site.window.firstObservedAt)})
+          </>
+        ) : (
+          'No data'
+        )}
+        <span class="fact-note">Share of observed checks that succeeded, not continuous uptime.</span>
+      </dd>
+    </div>
+  </dl>
+  <p class="overdue-label" data-overdue hidden={!overdueAtBuild}>
+    Overdue: this observation is older than the freshness threshold. It is the last observed result, not a new outage.
+  </p>
+  {publicLink && (
+    <p class="public-link"><a href={publicLink.href}>{publicLink.host}</a></p>
+  )}
+  <details class="recent-checks">
+    <summary>Recent checks ({site.recentChecks.length})</summary>
+    {site.recentChecks.length === 0 ? (
+      <p>No recent checks.</p>
+    ) : (
+      <ol>
+        {site.recentChecks.map((check) => (
+          <li>
+            <time datetime={check.checkedAt}>{formatUtc(check.checkedAt)}</time>
+            <span class="check-outcome">{check.status === 'up' ? 'Up' : 'Down'}</span>
+            <span class="check-detail">{outcomeDetail(check)}{check.responseTimeMs !== null ? `, ${check.responseTimeMs} ms` : ''}</span>
+          </li>
+        ))}
+      </ol>
+    )}
+  </details>
+</article>

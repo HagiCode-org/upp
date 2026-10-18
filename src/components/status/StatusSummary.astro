@@ -1,0 +1,48 @@
+---
+import { FRESHNESS_NOTE, formatUtc, overallCopy } from '../../lib/present.mjs';
+
+interface Props {
+  snapshot: { generatedAt: string; sites: { latest: { checkedAt: string } | null }[] };
+  summary: { state: string; counts: { total: number; up: number; down: number; noData: number; stale: number } };
+  source: 'snapshot' | 'no-data';
+}
+
+const { snapshot, summary, source } = Astro.props;
+const copy = overallCopy(summary.state);
+const observed = snapshot.sites
+  .map((site) => site.latest?.checkedAt)
+  .filter((value): value is string => typeof value === 'string')
+  .sort();
+const newest = observed.length > 0 ? observed[observed.length - 1] : null;
+const staleAtBuild = summary.counts.stale > 0;
+---
+
+<section class="summary" data-overall-state={summary.state} aria-labelledby="summary-heading">
+  <h2 id="summary-heading" class="summary-heading">{copy.heading}</h2>
+  <p class="summary-detail">{copy.detail}</p>
+  <p class="overall-warning" data-overall-warning role="status" hidden={!staleAtBuild}>
+    Monitoring data delayed: the newest observation is older than the freshness threshold.
+  </p>
+  <dl class="summary-facts">
+    <div>
+      <dt>Snapshot generated</dt>
+      <dd><time datetime={snapshot.generatedAt}>{formatUtc(snapshot.generatedAt)}</time></dd>
+    </div>
+    <div>
+      <dt>Newest observation</dt>
+      <dd>
+        {newest ? <time datetime={newest}>{formatUtc(newest)}</time> : 'No observations'}
+      </dd>
+    </div>
+    <div>
+      <dt>Enabled services</dt>
+      <dd>{summary.counts.total} total · {summary.counts.up} up · {summary.counts.down} down · {summary.counts.noData} no data</dd>
+    </div>
+  </dl>
+  {source === 'no-data' && (
+    <p class="notice">
+      No monitoring snapshot is present in this build. Results appear after a monitoring run. Building or viewing this page made no monitoring requests.
+    </p>
+  )}
+  <p class="freshness-note">{FRESHNESS_NOTE}</p>
+</section>

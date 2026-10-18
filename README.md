@@ -110,6 +110,8 @@ Download the output from the run's **Artifacts** section as `site-availability-<
 
 `/release-hashes/` compares each registered repository's `main` head commit on GitHub with the commit its published site was built from, read from `/.well-known/hagilight.metadata.json`. The page is cross-linked from the service status page, and the same validated data is served as `/release-hash.json`.
 
+The service status homepage shows a compact sync check entry directly after the availability summary and before the services list. It gives the sync state and the per-state counts, and links to `/release-hashes/`. It reads the same snapshot at build time, so a build without a snapshot shows the no-data entry, and an invalid snapshot fails the homepage build as it fails the release-hash page. A sync result never changes the availability summary, and an outage never changes the sync entry.
+
 ### Registry
 
 The compared repositories are listed in `src/data/release-repositories.json`. Each entry has an `id` (lowercase, unique), a `name`, a GitHub `repository` as `owner/name`, `branch` (always `main`), and an `origin`. The origin must be an exact HTTPS origin: no path, query, fragment, trailing slash, or credentials. Invalid entries fail the check before any request is sent.

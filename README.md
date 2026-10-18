@@ -11,6 +11,7 @@ npm ci              # installs from package-lock.json
 npm test            # node --test over tests/**
 npm run build       # astro build into dist/
 npm run monitor     # probe enabled sites and write .monitor-data/
+npm run release-check  # compare each repository's main head with its published commit
 ```
 
 Node 24 or later is required. Installing `@hagicode/hagilight` pulls in its Astro integration; the Astro version it supports is `>=7`.
@@ -95,8 +96,8 @@ Interpreting the numbers:
 - Triggers: `schedule` (`*/5 * * * *`) and `workflow_dispatch`, both on `main` only. Pull request events never run it.
 - Permissions: `contents: read` and `actions: read`. No write access and no hosting credentials.
 - Concurrency group `site-availability-monitor` with `cancel-in-progress: false`, so one checkpoint writer runs at a time. Delayed or queued runs produce gaps, not synthetic observations.
-- Steps: `npm ci`, `npm run monitor` (validation, restore, checks, snapshot), `npm run build`, then staging of `checkpoint.json` and `dist/`, then upload. The upload runs only after every earlier step succeeds.
-- Timeouts: the job has a 15-minute limit. The probe budget is 10 minutes (`UPP_RUN_BUDGET_MS`).
+- Steps: `npm ci`, `npm run monitor` (validation, restore, checks, snapshot), `npm run release-check` (release hashes, see below), `npm run build`, then staging of `checkpoint.json` and `dist/`, then upload. The upload runs only after every earlier step succeeds.
+- Timeouts: the job has a 15-minute limit. The probe budget is 10 minutes (`UPP_RUN_BUDGET_MS`), and the release-hash check has 2 minutes (`UPP_RELEASE_CHECK_BUDGET_MS`).
 - Secrets: none are referenced today. Add each referenced secret to the monitor step's `env` as the target's `secret` name.
 
 To run it manually, use **Actions → Site availability monitor → Run workflow** on `main`. Manual runs use the same configuration and output as scheduled runs.
@@ -104,6 +105,61 @@ To run it manually, use **Actions → Site availability monitor → Run workflow
 Scheduled runs are best effort. GitHub may delay or skip them, so timestamps and sample counts show what was actually observed.
 
 Download the output from the run's **Artifacts** section as `site-availability-<run-id>-<run-attempt>`. The archive contains `checkpoint.json` at its root and the static site under `dist/`.
+
+## Release hash status
+
+`/release-hashes/` compares each registered repository's `main` head commit on GitHub with the commit its published site was built from, read from `/.well-known/hagilight.metadata.json`. The page is cross-linked from the service status page, and the same validated data is served as `/release-hash.json`.
+
+### Registry
+
+The compared repositories are listed in `src/data/release-repositories.json`. Each entry has an `id` (lowercase, unique), a `name`, a GitHub `repository` as `owner/name`, `branch` (always `main`), and an `origin`. The origin must be an exact HTTPS origin: no path, query, fragment, trailing slash, or credentials. Invalid entries fail the check before any request is sent.
+
+To add a repository, append an entry with a new `id`, make sure its site emits the well-known metadata file, and run `npm run release-check` locally with `GITHUB_TOKEN` set. Set `UPP_RELEASE_REGISTRY` to a different file to test a candidate registry without editing the committed one.
+
+### States and reasons
+
+| State | Meaning |
+| --- | --- |
+| `match` | Both hashes are known, and the published commit equals the `main` head or is a prefix of it with at least 7 characters. |
+| `mismatch` | Both hashes are known and they differ. The page shows this as abnormal. |
+| `unknown` | One side could not be read. The row shows a reason, and no comparison is inferred. |
+| `No data` | The build has no snapshot, so the row is not checked yet. |
+
+The summary is `abnormal` when any repository mismatches, `incomplete` when none mismatch but some are unknown, and `normal` only when every repository matches. Unknown reasons are one of: `github-not-found`, `github-forbidden`, `github-rate-limited`, `github-error`, `github-invalid-response`, `metadata-not-found`, `metadata-http-error`, `metadata-invalid`, `metadata-commit-unknown`, `too-large`, `timeout`, `dns`, `tls`, `redirect`, `network`, and `not-checked`.
+
+### `release-hash.json`
+
+- `schemaVersion` (1), `generatedAt` (UTC), and `runKey` (`null` only for the local no-data state; otherwise `<run-id>:<run-attempt>` or `local:<time>`).
+- `repositories[]` in registry order: `id`, `name`, `repository`, `branch`, `publicOrigin`, `state`, `mainHash` (40 hex or `null`), `publishedHash` (7 to 64 hex or `null`), `publishedBranch`, `publishedBuiltAt`, `checkedAt`, and `reason` (`null` for `match` and `mismatch`).
+
+The file never contains tokens or response bodies. Reasons are fixed categories, so response text cannot reach the output.
+
+### Running the check
+
+```sh
+npm run release-check
+```
+
+The check reads `GITHUB_TOKEN` when it is set, and sends it only to `api.github.com`. Without a token, GitHub's anonymous rate limit applies and rate-limited repositories show as `unknown`. Each repository gets up to two attempts for timeouts and network errors only, with an 8-second timeout per request and four repositories at a time. The whole check must finish inside `UPP_RELEASE_CHECK_BUDGET_MS` (default `120000`). The worst case is checked before any request, so an impossible budget fails early.
+
+Exit codes:
+
+- `0`: the snapshot was written. Mismatches and unknowns are data and do not fail the run.
+- `1`: validation or writing failed. The previous `.monitor-data/release-hash.json` is kept.
+- `2`: the registry is invalid, the budget is invalid, or the worst case exceeds the budget. No request was made.
+
+The snapshot is written to `.monitor-data/release-hash.json` (or `UPP_MONITOR_OUTPUT`), next to `status.json`.
+
+### Local preview
+
+`npm run build` without `.monitor-data/release-hash.json` renders every repository as `No data`, with no GitHub or site requests. A malformed or invalid file fails the build. To preview real results, run `npm run release-check` first, which makes network requests, and then `npm run build`.
+
+### Assumptions
+
+- Compared repositories are public and readable with the workflow's `GITHUB_TOKEN`. A private or missing repository shows as `unknown` with `github-not-found`.
+- Every compared site serves `/.well-known/hagilight.metadata.json` with `schemaVersion` 1. A site that does not is shown as `unknown`, never as a mismatch.
+- Origins are HTTPS. Redirects are followed at most five times, and each hop must also be HTTPS.
+- Results are point-in-time observations. There is no history, and a site caught mid-deploy can show a short-lived mismatch until the next run.
 
 ## Branch-based publication
 

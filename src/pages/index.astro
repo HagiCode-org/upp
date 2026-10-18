@@ -2,11 +2,16 @@
 import StatusLayout from '../layouts/StatusLayout.astro';
 import StatusSummary from '../components/status/StatusSummary.astro';
 import ServiceStatus from '../components/status/ServiceStatus.astro';
+import SyncCheckEntry from '../components/status/SyncCheckEntry.astro';
+import { loadReleaseData } from '../lib/load-release-hash.mjs';
 import { loadStatusData } from '../lib/load-status.mjs';
 import { summarizeOverall } from '../lib/status.mjs';
+import { summarizeReleaseHashes } from '../lib/release-hash.mjs';
 
 const { snapshot, source } = await loadStatusData();
 const summary = summarizeOverall(snapshot);
+const { snapshot: releaseSnapshot } = await loadReleaseData();
+const releaseSummary = summarizeReleaseHashes(releaseSnapshot);
 const title = 'Service status';
 const description = 'Observed availability of HagiCode sites, with the time of each last check.';
 ---
@@ -14,6 +19,7 @@ const description = 'Observed availability of HagiCode sites, with the time of e
 <StatusLayout title={title} description={description}>
   <h1 class="page-title">{title}</h1>
   <StatusSummary snapshot={snapshot} summary={summary} source={source} />
+  <SyncCheckEntry summary={releaseSummary} />
   <section class="services-section" aria-labelledby="services-heading">
     <h2 id="services-heading">Services</h2>
     {snapshot.sites.length === 0 ? (
@@ -30,9 +36,6 @@ const description = 'Observed availability of HagiCode sites, with the time of e
   </section>
   <p class="machine-readable">
     Machine-readable snapshot: <a href={`${import.meta.env.BASE_URL}status.json`}>status.json</a>
-  </p>
-  <p class="machine-readable">
-    Release hashes: <a href={`${import.meta.env.BASE_URL}release-hashes/`}>compare each site's published commit with its main branch</a>
   </p>
   <script>
     import '../scripts/status-freshness.js';

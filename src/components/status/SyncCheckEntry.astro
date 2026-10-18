@@ -1,0 +1,24 @@
+---
+import { releaseCountsText, releaseSummaryCopy } from '../../lib/present.mjs';
+
+interface Props {
+  summary: { state: string; counts: { total: number; match: number; mismatch: number; unknown: number } };
+}
+
+const { summary } = Astro.props;
+const copy = releaseSummaryCopy(summary);
+// Astro keeps a non-root base without its trailing slash, so add one before the page path.
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+// The abnormal and incomplete details already carry the counts. The normal detail does not, so the counts line appears only there.
+const showCounts = summary.state === 'normal';
+---
+
+<section class="sync-entry" data-release-state={summary.state} aria-labelledby="sync-label sync-heading">
+  <p id="sync-label" class="sync-label">Sync check</p>
+  <h2 id="sync-heading" class="sync-heading">{copy.heading}</h2>
+  <p class="sync-detail">{copy.detail}</p>
+  {showCounts && <p class="sync-counts">{releaseCountsText(summary.counts)}</p>}
+  <p class="sync-link">
+    <a href={`${base}release-hashes/`}>View release hash status</a>
+  </p>
+</section>

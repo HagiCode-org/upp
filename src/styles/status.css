@@ -332,6 +332,67 @@ dl {
   color: var(--muted);
 }
 
+/* Sync check entry on the homepage. The state is written as text in the heading; the left border only repeats it. */
+.sync-entry {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--line);
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  padding: 0.875rem 1rem;
+}
+
+.sync-entry[data-release-state="normal"] {
+  border-left-color: var(--up);
+}
+
+.sync-entry[data-release-state="abnormal"] {
+  border-left-color: var(--down);
+}
+
+.sync-entry[data-release-state="incomplete"] {
+  border-left-color: var(--warn);
+}
+
+.sync-entry[data-release-state="no-data"] {
+  border-left-style: dashed;
+}
+
+.sync-label {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.sync-heading {
+  font-size: 1rem;
+  margin: 0.125rem 0 0.25rem;
+}
+
+.sync-detail,
+.sync-counts {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9375rem;
+}
+
+.sync-counts {
+  margin-top: 0.25rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.sync-link {
+  margin: 0.5rem 0 0;
+  font-weight: 600;
+}
+
+.sync-link a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+}
+
 /* Release hashes: a table from 40rem up, stacked cards below it. State is always written as text. */
 .release-table {
   width: 100%;

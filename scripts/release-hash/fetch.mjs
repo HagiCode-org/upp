@@ -148,6 +148,11 @@ function redirectTarget(response, current) {
   }
 }
 
+function isHtml(response) {
+  const type = response.headers.get('content-type')?.split(';')[0].trim().toLowerCase();
+  return type === 'text/html' || type === 'application/xhtml+xml';
+}
+
 function parseMetadata(text) {
   let parsed;
   try {
@@ -211,6 +216,12 @@ export async function fetchPublishedHash(entry, {
       if (response.status < 200 || response.status > 299) {
         await discard(response);
         return failed('metadata-http-error');
+      }
+      // A missing file is often answered with the site's HTML fallback page and a 200. Treat it as not published
+      // before reading the body, so it is not reported as invalid or too large.
+      if (isHtml(response)) {
+        await discard(response);
+        return failed('metadata-not-found');
       }
       let text;
       try {

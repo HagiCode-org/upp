@@ -113,6 +113,17 @@ test('a 404 and other non-success statuses map to metadata reasons', async () =>
   assert.equal((await fetchPublishedHash(docs, { fetch: serverError.fetch })).reason, 'metadata-http-error');
 });
 
+test('a 200 HTML fallback page is reported as not found, whatever its size or content', async () => {
+  const html = { 'content-type': 'text/html; charset=utf-8' };
+  const bodies = ['<!doctype html><html></html>', metadataBody({ commit: 'a1b2c3d' }), 'x'.repeat(MAX_METADATA_BYTES + 1)];
+  for (const body of bodies) {
+    const web = fakeFetch(async () => respond(body, { headers: html }));
+    assert.deepEqual(await fetchPublishedHash(docs, { fetch: web.fetch }), { hash: null, branch: null, builtAt: null, reason: 'metadata-not-found' });
+  }
+  const declared = fakeFetch(async () => respond('', { headers: { ...html, 'content-length': String(MAX_METADATA_BYTES + 1) } }));
+  assert.equal((await fetchPublishedHash(docs, { fetch: declared.fetch })).reason, 'metadata-not-found');
+});
+
 test('an oversized metadata body is rejected at the byte cap and never kept', async () => {
   const oversized = 'x'.repeat(MAX_METADATA_BYTES + 1);
   const web = fakeFetch(async () => respond(oversized));

@@ -104,4 +104,12 @@ Scheduled runs are best effort. GitHub may delay or skip them, so timestamps and
 
 Download the output from the run's **Artifacts** section as `site-availability-<run-id>-<run-attempt>`. The archive contains `checkpoint.json` at its root and the static site under `dist/`.
 
-This change does not activate hosting. A served page changes only after a separate consumer deploys the artifact's `dist/` directory.
+## Cloudflare deployment
+
+`.github/workflows/deploy-cloudflare.yml` publishes the artifact's `dist/` as Cloudflare Workers static assets (`wrangler.jsonc`, Worker name `upp`).
+
+- Triggers: `workflow_run` after a successful `Site availability monitor` run on `main`, and `workflow_dispatch` (optional `run_id`; default is the latest successful monitor run).
+- It downloads the monitor artifact and deploys that `dist/`. It does not rebuild or probe, so the published page is exactly what the monitor validated.
+- Only this workflow uses hosting credentials. The monitor workflow still has none.
+
+Required repository secrets: `CLOUDFLARE_API_TOKEN` (permission: Workers Scripts: Edit) and `CLOUDFLARE_ACCOUNT_ID`. Attach the custom domain (for example `status.hagicode.com`, matching `UPP_SITE_URL`) to the `upp` Worker in the Cloudflare dashboard, or add a `routes` entry to `wrangler.jsonc`.

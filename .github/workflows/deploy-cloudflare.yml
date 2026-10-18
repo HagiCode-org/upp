@@ -1,0 +1,74 @@
+name: Deploy status page to Cloudflare
+
+# Publishes the dist/ already built and validated by the monitor workflow. The probe job keeps no hosting
+# credentials; only this job sees the Cloudflare secrets, and it never rebuilds or re-probes.
+on:
+  workflow_run:
+    workflows: ["Site availability monitor"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "Monitor run id to publish (default: latest successful run on main)"
+        required: false
+
+permissions:
+  contents: read
+  actions: read
+
+# A newer snapshot supersedes a pending one; a running deploy finishes.
+concurrency:
+  group: upp-cloudflare-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.event != 'pull_request'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RUN_ID: ${{ github.event.workflow_run.id || inputs.run_id }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Resolve monitor run
+        id: run
+        run: |
+          run_id="$RUN_ID"
+          if [ -z "$run_id" ]; then
+            run_id=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow monitor.yml --branch main \
+              --status success --limit 1 --json databaseId --jq '.[0].databaseId')
+          fi
+          if [ -z "$run_id" ] || [ "$run_id" = "null" ]; then
+            echo "No successful monitor run found on main." >&2
+            exit 1
+          fi
+          attempt=$(gh run view "$run_id" --repo "$GITHUB_REPOSITORY" --json attempt --jq .attempt)
+          echo "id=$run_id" >> "$GITHUB_OUTPUT"
+          echo "artifact=site-availability-${run_id}-${attempt}" >> "$GITHUB_OUTPUT"
+
+      - name: Download validated static output
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ steps.run.outputs.artifact }}
+          path: artifact
+          run-id: ${{ steps.run.outputs.id }}
+          github-token: ${{ github.token }}
+
+      - name: Check static output
+        run: test -f artifact/dist/index.html
+
+      - name: Publish to Cloudflare
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy --config wrangler.jsonc --assets artifact/dist

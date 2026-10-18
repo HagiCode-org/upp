@@ -1,0 +1,21 @@
+# Synthetic fixture in the same layout as the Upptime site manifest (no body-text checks).
+owner: HagiCode-org
+repo: upptime
+
+sites:
+  - name: HagiCode Website
+    url: https://hagicode.example.test
+  - name: HagiCode Website Sitemap
+    url: https://www.hagicode.example.test/sitemap-index.xml
+    slug: hagi-code-website-sitemap
+    expectedStatusCodes: [200]
+  - name: HagiCode Website Robots
+    url: https://www.hagicode.example.test/robots.txt?cache=1
+    slug: hagi-code-website-robots
+    expectedStatusCodes: [200]
+  - name: Retired Docs
+    url: https://docs.hagicode.example.test
+    enabled: false
+
+status-website:
+  cname: status.hagicode.example.test

@@ -1,0 +1,200 @@
+{
+  "schemaVersion": 1,
+  "runKey": "90:1",
+  "generatedAt": "2026-10-17T12:00:00.000Z",
+  "checkIntervalSeconds": 300,
+  "staleAfterSeconds": 900,
+  "historyWindowDays": 30,
+  "historyResetReason": "first-run",
+  "sites": [
+    {
+      "id": "hagicode-website",
+      "name": "HagiCode Website",
+      "publicUrl": "https://hagicode.example.test/",
+      "series": {
+        "definitionRevision": "03e95ed01bec097a"
+      },
+      "latest": {
+        "runKey": "90:1",
+        "siteId": "hagicode-website",
+        "definitionRevision": "03e95ed01bec097a",
+        "checkedAt": "2026-10-17T11:58:00.000Z",
+        "status": "up",
+        "httpStatus": 200,
+        "responseTimeMs": 142,
+        "attempts": 1,
+        "failureCategory": null
+      },
+      "window": {
+        "historyWindowDays": 30,
+        "startsAt": "2026-09-17T12:00:00.000Z",
+        "endsAt": "2026-10-17T12:00:00.000Z",
+        "firstObservedAt": "2026-10-17T11:45:00.000Z",
+        "successfulChecks": 3,
+        "totalChecks": 3,
+        "availabilityPercent": 100
+      },
+      "recentChecks": [
+        {
+          "runKey": "90:1",
+          "siteId": "hagicode-website",
+          "definitionRevision": "03e95ed01bec097a",
+          "checkedAt": "2026-10-17T11:58:00.000Z",
+          "status": "up",
+          "httpStatus": 200,
+          "responseTimeMs": 142,
+          "attempts": 1,
+          "failureCategory": null
+        },
+        {
+          "runKey": "89:2",
+          "siteId": "hagicode-website",
+          "definitionRevision": "03e95ed01bec097a",
+          "checkedAt": "2026-10-17T11:50:00.000Z",
+          "status": "up",
+          "httpStatus": 200,
+          "responseTimeMs": 142,
+          "attempts": 1,
+          "failureCategory": null
+        },
+        {
+          "runKey": "89:1",
+          "siteId": "hagicode-website",
+          "definitionRevision": "03e95ed01bec097a",
+          "checkedAt": "2026-10-17T11:45:00.000Z",
+          "status": "up",
+          "httpStatus": 200,
+          "responseTimeMs": 142,
+          "attempts": 1,
+          "failureCategory": null
+        }
+      ]
+    },
+    {
+      "id": "hagi-code-website-sitemap",
+      "name": "HagiCode Website Sitemap",
+      "publicUrl": "https://www.hagicode.example.test/sitemap-index.xml",
+      "series": {
+        "definitionRevision": "9abf815843fdfe05"
+      },
+      "latest": {
+        "runKey": "90:1",
+        "siteId": "hagi-code-website-sitemap",
+        "definitionRevision": "9abf815843fdfe05",
+        "checkedAt": "2026-10-17T11:58:00.000Z",
+        "status": "up",
+        "httpStatus": 200,
+        "responseTimeMs": 142,
+        "attempts": 1,
+        "failureCategory": null
+      },
+      "window": {
+        "historyWindowDays": 30,
+        "startsAt": "2026-09-17T12:00:00.000Z",
+        "endsAt": "2026-10-17T12:00:00.000Z",
+        "firstObservedAt": "2026-10-17T11:45:00.000Z",
+        "successfulChecks": 3,
+        "totalChecks": 3,
+        "availabilityPercent": 100
+      },
+      "recentChecks": [
+        {
+          "runKey": "90:1",
+          "siteId": "hagi-code-website-sitemap",
+          "definitionRevision": "9abf815843fdfe05",
+          "checkedAt": "2026-10-17T11:58:00.000Z",
+          "status": "up",
+          "httpStatus": 200,
+          "responseTimeMs": 142,
+          "attempts": 1,
+          "failureCategory": null
+        },
+        {
+          "runKey": "89:2",
+          "siteId": "hagi-code-website-sitemap",
+          "definitionRevision": "9abf815843fdfe05",
+          "checkedAt": "2026-10-17T11:50:00.000Z",
+          "status": "up",
+          "httpStatus": 200,
+          "responseTimeMs": 142,
+          "attempts": 1,
+          "failureCategory": null
+        },
+        {
+          "runKey": "89:1",
+          "siteId": "hagi-code-website-sitemap",
+          "definitionRevision": "9abf815843fdfe05",
+          "checkedAt": "2026-10-17T11:45:00.000Z",
+          "status": "up",
+          "httpStatus": 200,
+          "responseTimeMs": 142,
+          "attempts": 1,
+          "failureCategory": null
+        }
+      ]
+    },
+    {
+      "id": "hagi-code-website-robots",
+      "name": "HagiCode Website Robots",
+      "publicUrl": "https://www.hagicode.example.test/robots.txt",
+      "series": {
+        "definitionRevision": "aa6fb5e086b2a0ee"
+      },
+      "latest": {
+        "runKey": "90:1",
+        "siteId": "hagi-code-website-robots",
+        "definitionRevision": "aa6fb5e086b2a0ee",
+        "checkedAt": "2026-10-17T11:58:00.000Z",
+        "status": "up",
+        "httpStatus": 200,
+        "responseTimeMs": 142,
+        "attempts": 1,
+        "failureCategory": null
+      },
+      "window": {
+        "historyWindowDays": 30,
+        "startsAt": "2026-09-17T12:00:00.000Z",
+        "endsAt": "2026-10-17T12:00:00.000Z",
+        "firstObservedAt": "2026-10-17T11:45:00.000Z",
+        "successfulChecks": 2,
+        "totalChecks": 3,
+        "availabilityPercent": 66.66666666666667
+      },
+      "recentChecks": [
+        {
+          "runKey": "90:1",
+          "siteId": "hagi-code-website-robots",
+          "definitionRevision": "aa6fb5e086b2a0ee",
+          "checkedAt": "2026-10-17T11:58:00.000Z",
+          "status": "up",
+          "httpStatus": 200,
+          "responseTimeMs": 142,
+          "attempts": 1,
+          "failureCategory": null
+        },
+        {
+          "runKey": "89:2",
+          "siteId": "hagi-code-website-robots",
+          "definitionRevision": "aa6fb5e086b2a0ee",
+          "checkedAt": "2026-10-17T11:50:00.000Z",
+          "status": "down",
+          "httpStatus": 503,
+          "responseTimeMs": 37,
+          "attempts": 2,
+          "failureCategory": "unexpected-status"
+        },
+        {
+          "runKey": "89:1",
+          "siteId": "hagi-code-website-robots",
+          "definitionRevision": "aa6fb5e086b2a0ee",
+          "checkedAt": "2026-10-17T11:45:00.000Z",
+          "status": "up",
+          "httpStatus": 200,
+          "responseTimeMs": 142,
+          "attempts": 1,
+          "failureCategory": null
+        }
+      ]
+    }
+  ]
+}

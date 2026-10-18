@@ -315,6 +315,16 @@ sites:
     slug: fullstack-sitemap
     expectedStatusCodes: [200]
     __dangerous__body_down_if_text_missing: "http://www.sitemaps.org/schemas/sitemap/0.9"
+  - name: Fullstack Robots
+    url: https://fullstack.hagicode.com/robots.txt
+    slug: fullstack-robots
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "User-agent:"
+  - name: Fullstack RSS
+    url: https://fullstack.hagicode.com/rss.xml
+    slug: fullstack-rss
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "<rss"
 
 status-website:
   cname: status.hagicode.com

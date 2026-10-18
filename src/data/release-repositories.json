@@ -1,0 +1,16 @@
+[
+  { "id": "hagilight", "name": "hagilight", "repository": "HagiCode-org/hagilight", "branch": "main", "origin": "https://hagilight.hagicode.com" },
+  { "id": "awesome-design-md-site", "name": "Awesome Design MD Site", "repository": "HagiCode-org/awesome-design-md-site", "branch": "main", "origin": "https://design.hagicode.com" },
+  { "id": "awesome-site", "name": "Awesome Site", "repository": "HagiCode-org/awesome-site", "branch": "main", "origin": "https://awesome.hagicode.com" },
+  { "id": "cost", "name": "Cost", "repository": "HagiCode-org/cost", "branch": "main", "origin": "https://cost.hagicode.com" },
+  { "id": "docker-compose-builder", "name": "Docker Compose Builder", "repository": "HagiCode-org/docker-compose-builder", "branch": "main", "origin": "https://builder.hagicode.com" },
+  { "id": "docs", "name": "Docs", "repository": "HagiCode-org/docs", "branch": "main", "origin": "https://docs.hagicode.com" },
+  { "id": "hagitask-site", "name": "HagiTask Site", "repository": "HagiCode-org/hagitask-site", "branch": "main", "origin": "https://tasks.hagicode.com" },
+  { "id": "impeccable-site", "name": "Impeccable Site", "repository": "HagiCode-org/impeccable-site", "branch": "main", "origin": "https://impeccable.hagicode.com" },
+  { "id": "index", "name": "Index", "repository": "HagiCode-org/index", "branch": "main", "origin": "https://index.hagicode.com" },
+  { "id": "omniroute-docs", "name": "OmniRoute Docs", "repository": "HagiCode-org/omniroute-docs", "branch": "main", "origin": "https://omniroute.hagicode.com" },
+  { "id": "openspec-docs", "name": "OpenSpec Docs", "repository": "HagiCode-org/openspec-docs", "branch": "main", "origin": "https://openspec.hagicode.com" },
+  { "id": "site", "name": "Official Website", "repository": "HagiCode-org/site", "branch": "main", "origin": "https://www.hagicode.com" },
+  { "id": "soul", "name": "Soul", "repository": "HagiCode-org/soul", "branch": "main", "origin": "https://soul.hagicode.com" },
+  { "id": "trait", "name": "Trait", "repository": "HagiCode-org/trait", "branch": "main", "origin": "https://trait.hagicode.com" }
+]

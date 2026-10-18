@@ -1,0 +1,63 @@
+---
+import StatusLayout from '../layouts/StatusLayout.astro';
+import ReleaseHashRow from '../components/status/ReleaseHashRow.astro';
+import { loadReleaseData } from '../lib/load-release-hash.mjs';
+import { orderForDisplay, summarizeReleaseHashes } from '../lib/release-hash.mjs';
+import { RELEASE_FRESHNESS_NOTE, formatUtc, releaseSummaryCopy } from '../lib/present.mjs';
+
+const { snapshot, source } = await loadReleaseData();
+const summary = summarizeReleaseHashes(snapshot);
+const copy = releaseSummaryCopy(summary);
+const rows = orderForDisplay(snapshot.repositories);
+const title = 'Release hash status';
+const description = 'Whether each HagiCode site publishes the commit at the head of its repository main branch.';
+const base = import.meta.env.BASE_URL;
+---
+
+<StatusLayout title={title} description={description}>
+  <p class="breadcrumb"><a href={base}>Service status</a></p>
+  <h1 class="page-title">{title}</h1>
+  <section class="summary" data-release-state={summary.state} aria-labelledby="summary-heading">
+    <h2 id="summary-heading" class="summary-heading">{copy.heading}</h2>
+    <p class="summary-detail">{copy.detail}</p>
+    <dl class="summary-facts">
+      <div>
+        <dt>Snapshot generated</dt>
+        <dd><time datetime={snapshot.generatedAt}>{formatUtc(snapshot.generatedAt)}</time></dd>
+      </div>
+      <div>
+        <dt>Registered repositories</dt>
+        <dd>{summary.counts.total}</dd>
+      </div>
+    </dl>
+    {source === 'no-data' && (
+      <p class="notice">
+        No release-hash snapshot is present in this build. Results appear after a monitor run. Building or viewing this page made no GitHub or site requests.
+      </p>
+    )}
+    <p class="freshness-note">{RELEASE_FRESHNESS_NOTE}</p>
+  </section>
+  <section class="services-section" aria-labelledby="repositories-heading">
+    <h2 id="repositories-heading">Repositories</h2>
+    <table class="release-table">
+      <caption class="visually-hidden">Release hash state for each registered repository. Mismatches first, then unknown, then match.</caption>
+      <thead>
+        <tr>
+          <th scope="col">Repository</th>
+          <th scope="col">State</th>
+          <th scope="col">main</th>
+          <th scope="col">Published</th>
+          <th scope="col">Checked</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((repo) => (
+          <ReleaseHashRow repo={repo} />
+        ))}
+      </tbody>
+    </table>
+  </section>
+  <p class="machine-readable">
+    Machine-readable snapshot: <a href={`${base}release-hash.json`}>release-hash.json</a>
+  </p>
+</StatusLayout>

@@ -1,0 +1,44 @@
+---
+import { formatUtc, releaseReasonLabel, releaseStateLabel, shortHash } from '../../lib/present.mjs';
+
+interface Props {
+  repo: { id: string; name: string; repository: string; publicOrigin: string; state: string; mainHash: string | null; publishedHash: string | null; publishedBranch: string | null; publishedBuiltAt: string | null; checkedAt: string | null; reason: string | null };
+}
+
+const { repo } = Astro.props;
+const label = releaseStateLabel(repo);
+const showReason = repo.state === 'unknown' && repo.reason !== 'not-checked';
+const host = new URL(repo.publicOrigin).host;
+---
+
+<tr class="release-row" data-release-id={repo.id} data-state={repo.state}>
+  <th scope="row" class="release-name">
+    <a href={repo.publicOrigin}>{repo.name}</a>
+    <span class="release-host">{host}</span>
+  </th>
+  <td data-label="State">
+    <span class="state-label">{label}</span>
+    {showReason && <span class="release-reason">{releaseReasonLabel(repo.reason)}</span>}
+  </td>
+  <td data-label="main">
+    {repo.mainHash ? (
+      <code class="hash" title={repo.mainHash}>{shortHash(repo.mainHash)}<span class="visually-hidden"> {repo.mainHash}</span></code>
+    ) : (
+      <span class="muted">{label === 'No data' ? 'No data' : 'Not available'}</span>
+    )}
+  </td>
+  <td data-label="Published">
+    {repo.publishedHash ? (
+      <>
+        <code class="hash" title={repo.publishedHash}>{shortHash(repo.publishedHash)}<span class="visually-hidden"> {repo.publishedHash}</span></code>
+        {repo.publishedBranch && <span class="release-meta">{repo.publishedBranch}</span>}
+        {repo.publishedBuiltAt && <span class="release-meta"><time datetime={repo.publishedBuiltAt}>{formatUtc(repo.publishedBuiltAt)}</time></span>}
+      </>
+    ) : (
+      <span class="muted">{label === 'No data' ? 'No data' : 'Not available'}</span>
+    )}
+  </td>
+  <td data-label="Checked">
+    {repo.checkedAt ? <time datetime={repo.checkedAt}>{formatUtc(repo.checkedAt)}</time> : <span class="muted">No data</span>}
+  </td>
+</tr>

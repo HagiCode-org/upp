@@ -185,6 +185,8 @@ test('three linked executions cover an outage, its recovery, and consistent stat
   assert.match(html, /Last observed: All services operational/);
   assert.equal(second.result.snapshot.sites.find((site) => site.id === 'flaky-site').latest.status, 'down');
   assert.match(await readFile(join(second.outDir, 'index.html'), 'utf8'), /Last observed: one or more services down/);
+  // The release-hash page ships in the same build. This flow writes no release snapshot, so it must read as no data.
+  assert.match(await readFile(join(third.outDir, 'release-hashes', 'index.html'), 'utf8'), /No release-hash data/);
 });
 
 test('a failed restore fails the run and leaves the last complete artifact untouched', async () => {

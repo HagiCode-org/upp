@@ -73,7 +73,7 @@ sites:
   - name: AI Cost Calculator
     url: https://cost.hagicode.com
   - name: AI Cost Calculator Sitemap
-    url: https://cost.hagicode.com/sitemap.xml
+    url: https://cost.hagicode.com/sitemap-index.xml
     slug: ai-cost-calculator-sitemap
     expectedStatusCodes: [200]
     __dangerous__body_down_if_text_missing: "http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -90,7 +90,7 @@ sites:
   - name: HagiCode Status
     url: https://status.hagicode.com
   - name: HagiCode Status Sitemap
-    url: https://status.hagicode.com/sitemap.xml
+    url: https://status.hagicode.com/sitemap-index.xml
     slug: hagi-code-status-sitemap
     expectedStatusCodes: [200]
     __dangerous__body_down_if_text_missing: "http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -99,11 +99,6 @@ sites:
     slug: hagi-code-status-robots
     expectedStatusCodes: [200]
     __dangerous__body_down_if_text_missing: "User-agent:"
-  - name: HagiCode Status RSS
-    url: https://status.hagicode.com/rss.xml
-    slug: hagi-code-status-rss
-    expectedStatusCodes: [200]
-    __dangerous__body_down_if_text_missing: "<rss"
   - name: Awesome Design MD
     url: https://design.hagicode.com
   - name: Awesome Design MD Sitemap
@@ -149,7 +144,7 @@ sites:
   - name: Soul Builder
     url: https://soul.hagicode.com
   - name: Soul Builder Sitemap
-    url: https://soul.hagicode.com/sitemap.xml
+    url: https://soul.hagicode.com/sitemap-index.xml
     slug: soul-builder-sitemap
     expectedStatusCodes: [200]
     __dangerous__body_down_if_text_missing: "http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -273,6 +268,53 @@ sites:
     slug: hagilight-demo-rss
     expectedStatusCodes: [200]
     __dangerous__body_down_if_text_missing: "<rss"
+  - name: Server Download Index (dl-server)
+    url: https://dl-server.hagicode.com/index.json
+    slug: server-download-index-dl-server
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "\"versions\""
+  - name: Desktop Download Index (dl-desktop)
+    url: https://dl-desktop.hagicode.com/index.json
+    slug: desktop-download-index-dl-desktop
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "\"versions\""
+  - name: DLC Download Index
+    url: https://dl-dlc.hagicode.com/index.json
+    slug: dlc-download-index
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "\"dlcs\""
+  - name: Awesome HagiCode
+    url: https://awesome.hagicode.com/
+    slug: awesome-hagicode
+    expectedStatusCodes: [200]
+  - name: Awesome HagiCode Sitemap
+    url: https://awesome.hagicode.com/sitemap-index.xml
+    slug: awesome-hagicode-sitemap
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "http://www.sitemaps.org/schemas/sitemap/0.9"
+  - name: Awesome HagiCode RSS
+    url: https://awesome.hagicode.com/rss.xml
+    slug: awesome-hagicode-rss
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "<rss"
+  - name: HagiStar
+    url: https://hagistar.hagicode.com/
+    slug: hagistar
+    expectedStatusCodes: [200]
+  - name: HagiStar Sitemap
+    url: https://hagistar.hagicode.com/sitemap-index.xml
+    slug: hagistar-sitemap
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "http://www.sitemaps.org/schemas/sitemap/0.9"
+  - name: Fullstack
+    url: https://fullstack.hagicode.com/
+    slug: fullstack
+    expectedStatusCodes: [200]
+  - name: Fullstack Sitemap
+    url: https://fullstack.hagicode.com/sitemap-index.xml
+    slug: fullstack-sitemap
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "http://www.sitemaps.org/schemas/sitemap/0.9"
 
 status-website:
   cname: status.hagicode.com

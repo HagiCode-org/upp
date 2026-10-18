@@ -9,7 +9,8 @@ import { serializeSnapshot } from '../../src/lib/load-status.mjs';
 const execFileAsync = promisify(execFile);
 const ROOT = resolve(import.meta.dirname, '..', '..');
 const FIXTURES = join(ROOT, 'tests', 'fixtures', 'status');
-const SCRATCH = join(ROOT, '.test-output');
+// Scoped to this file: test files run in parallel, and another file's cleanup must not delete a build's inputs mid-run.
+const SCRATCH = join(ROOT, '.test-output', 'build');
 const dirs = [];
 
 after(async () => {

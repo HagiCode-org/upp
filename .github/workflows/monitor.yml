@@ -1,0 +1,62 @@
+name: Site availability monitor
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+# Read-only repository access: checkpoints live in artifacts, not in commits.
+permissions:
+  contents: read
+  actions: read
+
+# Serialized checkpoint ownership. A running writer finishes; pending runs queue instead of cancelling it.
+concurrency:
+  group: site-availability-monitor
+  cancel-in-progress: false
+
+jobs:
+  monitor:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      UPP_DEFAULT_BRANCH: main
+      UPP_RUN_BUDGET_MS: "600000"
+      GITHUB_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install from lockfile
+        run: npm ci
+
+      # Referenced monitoring secrets are passed here only for the steps that probe sites.
+      - name: Check sites, restore history and write checkpoint
+        run: npm run monitor
+
+      - name: Build static output from the validated snapshot
+        run: npm run build
+
+      # Runs only after the monitor and build steps succeed, so a failed run never packages a partial pair.
+      - name: Stage checkpoint and static output
+        run: |
+          mkdir -p artifact
+          cp .monitor-data/checkpoint.json artifact/checkpoint.json
+          cp -r dist artifact/dist
+
+      - name: Upload checkpoint and static output
+        if: success()
+        uses: actions/upload-artifact@v7
+        with:
+          name: site-availability-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifact
+          retention-days: 30
+          if-no-files-found: error

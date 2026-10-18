@@ -1,0 +1,8 @@
+{
+  "name": "upp",
+  "compatibility_date": "2026-05-04",
+  // Static assets only. The deploy workflow overrides the directory with the downloaded monitor artifact.
+  "assets": {
+    "directory": "./dist"
+  }
+}

@@ -12,6 +12,7 @@ export const RECENT_CHECK_LIMIT = 20;
 export const OUTCOMES = Object.freeze(['up', 'down']);
 export const FAILURE_CATEGORIES = Object.freeze([
   'unexpected-status',
+  'missing-body-text',
   'timeout',
   'dns',
   'tls',

@@ -16,6 +16,7 @@ export const SUPPORTED_SITE_KEYS = Object.freeze([
   'timeoutMs',
   'maxAttempts',
   'enabled',
+  '__dangerous__body_down_if_text_missing',
 ]);
 export const MAX_TIMEOUT_MS = 30_000;
 export const MAX_ATTEMPTS_LIMIT = 3;
@@ -100,6 +101,7 @@ export function definitionRevisionFor(request) {
     headers: request.headers.map(({ name, secret }) => ({ name, secret })),
     timeoutMs: request.timeoutMs,
     maxAttempts: request.maxAttempts,
+    ...(request.requiredBodyText === undefined ? {} : { requiredBodyText: request.requiredBodyText }),
   });
   return createHash('sha256').update(canonical).digest('hex').slice(0, 16);
 }
@@ -152,8 +154,14 @@ export function normalizeSites(manifest) {
     if (!SUPPORTED_METHODS.includes(method)) {
       fail(`${label}.method must be one of ${SUPPORTED_METHODS.join(', ')}`);
     }
+    const requiredBodyText = raw.__dangerous__body_down_if_text_missing;
+    if (requiredBodyText !== undefined &&
+        (typeof requiredBodyText !== 'string' || requiredBodyText.length === 0 || method === 'HEAD')) {
+      fail(`${label}.__dangerous__body_down_if_text_missing must be a nonempty string with GET`);
+    }
     const request = {
       method,
+      ...(requiredBodyText === undefined ? {} : { requiredBodyText }),
       url: url.href,
       headers: normalizeHeaders(raw.headers, label),
       acceptedStatuses: normalizeAcceptedStatuses(raw.expectedStatusCodes, label),

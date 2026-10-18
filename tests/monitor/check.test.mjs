@@ -6,6 +6,36 @@ import { checkTarget, checkTargets, createRuntime, RunnerError } from '../../scr
 const CANARY = 'canary-token-7f3a9c';
 const servers = [];
 
+test('body checks match across UTF-8 chunks and cancel after matching', async () => {
+  let cancelled = false;
+  const bytes = new TextEncoder().encode('prefix用户标记suffix');
+  const stream = new ReadableStream({
+    start(controller) {
+      for (const byte of bytes) controller.enqueue(Uint8Array.of(byte));
+    },
+    cancel() { cancelled = true; },
+  });
+  const sample = await checkTarget(target('a', 'https://example.test', { requiredBodyText: '用户标记' }),
+    runtime({ fetch: async () => new Response(stream) }));
+  assert.equal(sample.status, 'up');
+  assert.equal(cancelled, true);
+});
+
+test('missing body text retries and returns a safe failure without storing the body', async () => {
+  const { base, seen } = await startServer((req, res) => res.end(CANARY));
+  const sample = await checkTarget(target('a', base, { requiredBodyText: '<rss' }), runtime());
+  assert.equal(sample.failureCategory, 'missing-body-text');
+  assert.equal(sample.httpStatus, 200);
+  assert.equal(seen.length, 2);
+  assert.equal(JSON.stringify(sample).includes(CANARY), false);
+});
+
+test('body reading stays within the attempt timeout', async () => {
+  const { base } = await startServer((req, res) => res.write('partial'));
+  const sample = await checkTarget(target('a', base, { requiredBodyText: '<rss', timeoutMs: 100, maxAttempts: 1 }), runtime());
+  assert.equal(sample.failureCategory, 'timeout');
+});
+
 async function startServer(handler) {
   const seen = [];
   const server = http.createServer((req, res) => {

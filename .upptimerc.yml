@@ -1,0 +1,287 @@
+owner: HagiCode-org
+repo: upptime
+
+sites:
+  - name: HagiCode Website
+    url: https://hagicode.com
+  - name: HagiCode Website Sitemap
+    url: https://www.hagicode.com/sitemap-index.xml
+    slug: hagi-code-website-sitemap
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "http://www.sitemaps.org/schemas/sitemap/0.9"
+  - name: HagiCode Website Robots
+    url: https://www.hagicode.com/robots.txt
+    slug: hagi-code-website-robots
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "User-agent:"
+  - name: HagiCode Website RSS
+    url: https://www.hagicode.com/rss.xml
+    slug: hagi-code-website-rss
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "<rss"
+  - name: HagiCode Docs
+    url: https://docs.hagicode.com
+  - name: HagiCode Docs Sitemap
+    url: https://docs.hagicode.com/sitemap-index.xml
+    slug: hagi-code-docs-sitemap
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "http://www.sitemaps.org/schemas/sitemap/0.9"
+  - name: HagiCode Docs Robots
+    url: https://docs.hagicode.com/robots.txt
+    slug: hagi-code-docs-robots
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "User-agent:"
+  - name: HagiCode Docs RSS
+    url: https://docs.hagicode.com/rss.xml
+    slug: hagi-code-docs-rss
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "<rss"
+  - name: newbe
+    url: https://newbe.hagicode.com
+  - name: newbe Sitemap
+    url: https://newbe.hagicode.com/sitemap.xml
+    slug: newbe-sitemap
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "http://www.sitemaps.org/schemas/sitemap/0.9"
+  - name: newbe Robots
+    url: https://newbe.hagicode.com/robots.txt
+    slug: newbe-robots
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "User-agent:"
+  - name: newbe RSS
+    url: https://newbe.hagicode.com/rss.xml
+    slug: newbe-rss
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "<rss"
+  - name: Docker Compose Builder
+    url: https://builder.hagicode.com
+  - name: Docker Compose Builder Sitemap
+    url: https://builder.hagicode.com/sitemap.xml
+    slug: docker-compose-builder-sitemap
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "http://www.sitemaps.org/schemas/sitemap/0.9"
+  - name: Docker Compose Builder Robots
+    url: https://builder.hagicode.com/robots.txt
+    slug: docker-compose-builder-robots
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "User-agent:"
+  - name: Docker Compose Builder RSS
+    url: https://builder.hagicode.com/rss.xml
+    slug: docker-compose-builder-rss
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "<rss"
+  - name: AI Cost Calculator
+    url: https://cost.hagicode.com
+  - name: AI Cost Calculator Sitemap
+    url: https://cost.hagicode.com/sitemap.xml
+    slug: ai-cost-calculator-sitemap
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "http://www.sitemaps.org/schemas/sitemap/0.9"
+  - name: AI Cost Calculator Robots
+    url: https://cost.hagicode.com/robots.txt
+    slug: ai-cost-calculator-robots
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "User-agent:"
+  - name: AI Cost Calculator RSS
+    url: https://cost.hagicode.com/rss.xml
+    slug: ai-cost-calculator-rss
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "<rss"
+  - name: HagiCode Status
+    url: https://status.hagicode.com
+  - name: HagiCode Status Sitemap
+    url: https://status.hagicode.com/sitemap.xml
+    slug: hagi-code-status-sitemap
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "http://www.sitemaps.org/schemas/sitemap/0.9"
+  - name: HagiCode Status Robots
+    url: https://status.hagicode.com/robots.txt
+    slug: hagi-code-status-robots
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "User-agent:"
+  - name: HagiCode Status RSS
+    url: https://status.hagicode.com/rss.xml
+    slug: hagi-code-status-rss
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "<rss"
+  - name: Awesome Design MD
+    url: https://design.hagicode.com
+  - name: Awesome Design MD Sitemap
+    url: https://design.hagicode.com/sitemap-index.xml
+    slug: awesome-design-md-sitemap
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "http://www.sitemaps.org/schemas/sitemap/0.9"
+  - name: Awesome Design MD Robots
+    url: https://design.hagicode.com/robots.txt
+    slug: awesome-design-md-robots
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "User-agent:"
+  - name: Awesome Design MD RSS
+    url: https://design.hagicode.com/rss.xml
+    slug: awesome-design-md-rss
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "<rss"
+  - name: HagiCode Index
+    url: https://index.hagicode.com
+  - name: Server Package Index
+    url: https://index.hagicode.com/server/index.json
+  - name: Desktop Package Index
+    url: https://index.hagicode.com/desktop/index.json
+  - name: Desktop Download Index
+    url: https://desktop.dl.hagicode.com/index.json
+  - name: Server Download Index
+    url: https://server.dl.hagicode.com/index.json
+  - name: HagiCode Index Sitemap
+    url: https://index.hagicode.com/sitemap-index.xml
+    slug: hagi-code-index-sitemap
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "http://www.sitemaps.org/schemas/sitemap/0.9"
+  - name: HagiCode Index Robots
+    url: https://index.hagicode.com/robots.txt
+    slug: hagi-code-index-robots
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "User-agent:"
+  - name: HagiCode Index RSS
+    url: https://index.hagicode.com/rss.xml
+    slug: hagi-code-index-rss
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "<rss"
+  - name: Soul Builder
+    url: https://soul.hagicode.com
+  - name: Soul Builder Sitemap
+    url: https://soul.hagicode.com/sitemap.xml
+    slug: soul-builder-sitemap
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "http://www.sitemaps.org/schemas/sitemap/0.9"
+  - name: Soul Builder Robots
+    url: https://soul.hagicode.com/robots.txt
+    slug: soul-builder-robots
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "User-agent:"
+  - name: Soul Builder RSS
+    url: https://soul.hagicode.com/rss.xml
+    slug: soul-builder-rss
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "<rss"
+  - name: Trait Builder
+    url: https://trait.hagicode.com
+  - name: Trait Builder Sitemap
+    url: https://trait.hagicode.com/sitemap-index.xml
+    slug: trait-builder-sitemap
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "http://www.sitemaps.org/schemas/sitemap/0.9"
+  - name: Trait Builder Robots
+    url: https://trait.hagicode.com/robots.txt
+    slug: trait-builder-robots
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "User-agent:"
+  - name: Trait Builder RSS
+    url: https://trait.hagicode.com/rss.xml
+    slug: trait-builder-rss
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "<rss"
+  - name: HagiTask
+    url: https://tasks.hagicode.com
+  - name: HagiTask Sitemap
+    url: https://tasks.hagicode.com/sitemap-index.xml
+    slug: hagitask-sitemap
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "http://www.sitemaps.org/schemas/sitemap/0.9"
+  - name: HagiTask Robots
+    url: https://tasks.hagicode.com/robots.txt
+    slug: hagitask-robots
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "User-agent:"
+  - name: HagiTask RSS
+    url: https://tasks.hagicode.com/rss.xml
+    slug: hagitask-rss
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "<rss"
+  - name: OpenSpec Docs
+    url: https://openspec.hagicode.com/
+    slug: openspec-docs
+    expectedStatusCodes: [200]
+  - name: OpenSpec Docs Sitemap
+    url: https://openspec.hagicode.com/sitemap-index.xml
+    slug: openspec-docs-sitemap
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "http://www.sitemaps.org/schemas/sitemap/0.9"
+  - name: OpenSpec Docs Robots
+    url: https://openspec.hagicode.com/robots.txt
+    slug: openspec-docs-robots
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "User-agent:"
+  - name: OpenSpec Docs RSS
+    url: https://openspec.hagicode.com/rss.xml
+    slug: openspec-docs-rss
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "<rss"
+  - name: OmniRoute Docs
+    url: https://omniroute.hagicode.com/
+    slug: omniroute-docs
+    expectedStatusCodes: [200]
+  - name: OmniRoute Docs Sitemap
+    url: https://omniroute.hagicode.com/sitemap-index.xml
+    slug: omniroute-docs-sitemap
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "http://www.sitemaps.org/schemas/sitemap/0.9"
+  - name: OmniRoute Docs Robots
+    url: https://omniroute.hagicode.com/robots.txt
+    slug: omniroute-docs-robots
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "User-agent:"
+  - name: OmniRoute Docs RSS
+    url: https://omniroute.hagicode.com/rss.xml
+    slug: omniroute-docs-rss
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "<rss"
+  - name: Impeccable
+    url: https://impeccable.hagicode.com/
+    slug: impeccable
+    expectedStatusCodes: [200]
+  - name: Impeccable Sitemap
+    url: https://impeccable.hagicode.com/sitemap-index.xml
+    slug: impeccable-sitemap
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "http://www.sitemaps.org/schemas/sitemap/0.9"
+  - name: Impeccable Robots
+    url: https://impeccable.hagicode.com/robots.txt
+    slug: impeccable-robots
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "User-agent:"
+  - name: Impeccable RSS
+    url: https://impeccable.hagicode.com/rss.xml
+    slug: impeccable-rss
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "<rss"
+  - name: Hagilight Demo
+    url: https://hagilight.hagicode.com/
+    slug: hagilight-demo
+    expectedStatusCodes: [200]
+  - name: Hagilight Demo Sitemap
+    url: https://hagilight.hagicode.com/sitemap-index.xml
+    slug: hagilight-demo-sitemap
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "http://www.sitemaps.org/schemas/sitemap/0.9"
+  - name: Hagilight Demo Robots
+    url: https://hagilight.hagicode.com/robots.txt
+    slug: hagilight-demo-robots
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "User-agent:"
+  - name: Hagilight Demo RSS
+    url: https://hagilight.hagicode.com/rss.xml
+    slug: hagilight-demo-rss
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "<rss"
+
+status-website:
+  cname: status.hagicode.com
+  logoUrl: https://raw.githubusercontent.com/HagiCode-org/upptime/master/assets/upptime-icon.svg
+  name: HagiCode Status
+  introTitle: "**HagiCode Status**"
+  introMessage: Real-time availability tracking for public HagiCode websites and download endpoints.
+  navbar:
+    - title: Status
+      href: /
+    - title: GitHub
+      href: https://github.com/$OWNER/$REPO

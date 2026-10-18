@@ -3,6 +3,7 @@ import { STALE_AFTER_SECONDS } from './status.mjs';
 
 const FAILURE_LABELS = Object.freeze({
   'unexpected-status': 'unexpected HTTP status',
+  'missing-body-text': 'required response text missing',
   timeout: 'timed out',
   dns: 'DNS lookup failed',
   tls: 'TLS handshake failed',

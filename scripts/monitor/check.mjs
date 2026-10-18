@@ -78,6 +78,19 @@ function withoutSecretHeaders() {
   return {};
 }
 
+async function bodyContains(response, text) {
+  if (!response.body) return false;
+  const decoder = new TextDecoder();
+  let tail = '';
+  // Retain only enough text to match across chunks; never store the response body.
+  for await (const chunk of response.body) {
+    const content = tail + decoder.decode(chunk, { stream: true });
+    if (content.includes(text)) return true;
+    tail = text.length > 1 ? content.slice(-(text.length - 1)) : '';
+  }
+  return (tail + decoder.decode()).includes(text);
+}
+
 // One attempt covers the whole request, including redirects, under a single timeout.
 async function attemptOnce(request, headers, runtime) {
   const checkedAt = runtime.now();
@@ -135,11 +148,18 @@ async function attemptOnce(request, headers, runtime) {
       }
 
       const responseTimeMs = runtime.clock() - started;
-      await discardBody(response);
-      if (isAccepted(response.status, request.acceptedStatuses)) {
-        return { ok: true, checkedAt, httpStatus: response.status, responseTimeMs, failureCategory: null };
+      if (!isAccepted(response.status, request.acceptedStatuses)) {
+        await discardBody(response);
+        return failure('unexpected-status', response.status, responseTimeMs);
       }
-      return failure('unexpected-status', response.status, responseTimeMs);
+      if (request.requiredBodyText !== undefined) {
+        if (!await bodyContains(response, request.requiredBodyText)) {
+          return failure('missing-body-text', response.status, responseTimeMs);
+        }
+      } else {
+        await discardBody(response);
+      }
+      return { ok: true, checkedAt, httpStatus: response.status, responseTimeMs, failureCategory: null };
     }
   } catch (error) {
     if (runtime.signal?.aborted) {

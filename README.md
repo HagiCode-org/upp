@@ -25,7 +25,7 @@ To render a real snapshot locally, run `npm run monitor` first (it probes the co
 
 The site list is read from a manifest in the existing Upptime layout (`sites:` with `name`, `url`, and optional `slug`, `expectedStatusCodes`, `method`, `headers`, `timeoutMs`, `maxAttempts`, `enabled`). Set the path with `UPP_SITE_MANIFEST`. The default is `.upptimerc.yml` at the package root.
 
-> **Open item:** the manifest path default and the handling of Upptime's body-text checks (`__dangerous__body_down_if_text_missing`) are still being decided. The current loader rejects that key by name, so the Upptime manifest at `repos/upptime/.upptimerc.yml` is not accepted as-is.
+The repository includes `.upptimerc.yml`, copied from `repos/upptime/.upptimerc.yml`, so the default monitor and build commands work without a path override. The site list and Upptime body-text checks are preserved. Top-level Upptime metadata is retained for reference; it does not configure this Astro site's presentation or deployment.
 
 | Key | Meaning |
 | --- | --- |
@@ -38,6 +38,7 @@ The site list is read from a manifest in the existing Upptime layout (`sites:` w
 | `timeoutMs` | Per-attempt timeout, 1000 to 30000. Default 10000. |
 | `maxAttempts` | 1 to 3. Default 2. |
 | `enabled` | `false` removes the site from the active list and from new probes. |
+| `__dangerous__body_down_if_text_missing` | Nonempty, case-sensitive text required in the response body. GET only. |
 
 Any other key is rejected before probing. A rename changes the derived identity, so set `slug` to keep a site's history when renaming.
 
@@ -52,8 +53,8 @@ Monitoring needs every secret referenced by an enabled target. Missing secrets f
 - Up to 4 targets run concurrently. A slow or failing target does not hold up the others.
 - A failed attempt is retried once by default. The run keeps one final observation per target.
 - Response time is measured to response headers, in milliseconds. Transport failures have no response time.
-- Response bodies are never read or stored.
-- Failure categories: `unexpected-status`, `timeout`, `dns`, `tls`, `redirect`, `network`.
+- Response bodies are read only for configured body-text checks, streamed within the attempt timeout with bounded matching memory, and never stored. Reading stops once the text matches.
+- Failure categories: `unexpected-status`, `missing-body-text`, `timeout`, `dns`, `tls`, `redirect`, `network`.
 - Exit codes: `0` when the run completes, including when sites are down. `2` for configuration or preflight problems, such as a missing secret, an unsupported key, or a worst-case probe time over the run budget. `1` for history access, history data, runner, or validation failures.
 
 ## History and checkpoints

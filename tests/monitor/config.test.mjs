@@ -5,6 +5,7 @@ import { parse } from 'yaml';
 import {
   ConfigurationError,
   definitionRevisionFor,
+  loadManifest,
   monitoredTargets,
   normalizeSites,
   presentationSites,
@@ -12,6 +13,24 @@ import {
 import { validateSnapshot, buildSnapshot } from '../../src/lib/status.mjs';
 
 const FIXTURE = new URL('../fixtures/status/sites-upptime-format.yml', import.meta.url);
+
+test('the shipped manifest loads with its body checks and no secret requirements', async () => {
+  const targets = await loadManifest(new URL('../../.upptimerc.yml', import.meta.url));
+  assert.ok(monitoredTargets(targets, {}).length > 0);
+  assert.ok(targets.some((target) => target.request.requiredBodyText === '<rss'));
+});
+
+test('body checks are validated and participate in series identity', () => {
+  const site = { name: 'Body', url: 'https://example.test/' };
+  const base = normalizeSites(manifest([site]))[0];
+  const checked = normalizeSites(manifest([{ ...site, __dangerous__body_down_if_text_missing: 'x' }]))[0];
+  assert.equal(checked.request.requiredBodyText, 'x');
+  assert.notEqual(base.definitionRevision, checked.definitionRevision);
+  for (const value of ['', null, 42]) {
+    assert.throws(() => normalizeSites(manifest([{ ...site, __dangerous__body_down_if_text_missing: value }])), /nonempty string/);
+  }
+  assert.throws(() => normalizeSites(manifest([{ ...site, method: 'HEAD', __dangerous__body_down_if_text_missing: 'x' }])), /with GET/);
+});
 
 async function loadFixture() {
   return normalizeSites(parse(await readFile(FIXTURE, 'utf8')));
@@ -72,8 +91,8 @@ test('invalid URLs, embedded credentials and non-HTTP schemes are rejected befor
 
 test('unsupported check-affecting settings are rejected by name', () => {
   assert.throws(
-    () => normalizeSites(manifest([{ name: 'Body', url: 'https://example.test/', __dangerous__body_down_if_text_missing: 'x' }])),
-    /__dangerous__body_down_if_text_missing is a check-affecting setting/,
+    () => normalizeSites(manifest([{ name: 'Body', url: 'https://example.test/', unsupported: 'x' }])),
+    /unsupported is a check-affecting setting/,
   );
   assert.throws(
     () => normalizeSites(manifest([{ name: 'Post', url: 'https://example.test/', method: 'POST' }])),

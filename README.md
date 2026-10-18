@@ -141,7 +141,7 @@ To add a repository, append an entry with a new `id`, make sure its site emits t
 | `unknown` | One side could not be read. The row shows a reason, and no comparison is inferred. |
 | `No data` | The build has no snapshot, so the row is not checked yet. |
 
-The summary is `abnormal` when any repository mismatches, `incomplete` when none mismatch but some are unknown, and `normal` only when every repository matches. Unknown reasons are one of: `github-not-found`, `github-forbidden`, `github-rate-limited`, `github-error`, `github-invalid-response`, `metadata-not-found`, `metadata-http-error`, `metadata-invalid`, `metadata-commit-unknown`, `too-large`, `timeout`, `dns`, `tls`, `redirect`, `network`, and `not-checked`.
+The summary is `abnormal` when any repository mismatches, `incomplete` when none mismatch but some are unknown, and `normal` only when every repository matches. Unknown reasons are one of: `github-not-found`, `github-forbidden`, `github-rate-limited`, `github-error`, `github-invalid-response`, `metadata-not-found`, `metadata-http-error`, `metadata-invalid`, `metadata-commit-unknown`, `too-large`, `timeout`, `dns`, `tls`, `redirect`, `network`, and `not-checked`. A `200` response whose `Content-Type` is `text/html` is the site's fallback page for a file that was not published, so it is reported as `metadata-not-found` before the body is read.
 
 ### `release-hash.json`
 

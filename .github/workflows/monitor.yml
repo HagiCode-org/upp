@@ -2,7 +2,7 @@ name: Site availability monitor
 
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "3/5 * * * *"
   workflow_dispatch:
 
 # Read-only repository access: checkpoints live in artifacts, not in commits.

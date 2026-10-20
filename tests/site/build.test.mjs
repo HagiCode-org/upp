@@ -71,6 +71,19 @@ test('with no snapshot the build renders the explicit no-data state and one main
   assert.ok(json.sites.every((site) => site.latest === null));
 });
 
+test('every page links the shared Hagilight favicon and the build emits the icon file', async () => {
+  const result = await build({ name: 'favicon' });
+  assert.equal(result.ok, true, result.error);
+  for (const page of ['index.html', join('release-hashes', 'index.html')]) {
+    const html = await readFile(join(result.outDir, page), 'utf8');
+    assert.equal(count(html, /<link[^>]*rel="icon"/g), 1, page);
+  }
+  const html = await readFile(join(result.outDir, 'index.html'), 'utf8');
+  const href = html.match(/<link[^>]*rel="icon"[^>]*href="([^"]+)"/)?.[1] ?? html.match(/<link[^>]*href="([^"]+)"[^>]*rel="icon"/)?.[1];
+  assert.match(href, /^\/_astro\/.+\.ico$/);
+  await readFile(join(result.outDir, href));
+});
+
 test('an all-up snapshot renders its observations and the JSON matches the snapshot bytes', async () => {
   const result = await build({ snapshot: 'all-up', name: 'all-up' });
   assert.equal(result.ok, true, result.error);

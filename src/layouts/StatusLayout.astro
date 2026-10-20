@@ -1,6 +1,8 @@
 ---
 import SEOHead from '@hagicode/hagilight/SEOHead';
 import Footer from '@hagicode/hagilight/Footer';
+import { resolveFaviconHeadEntry } from '@hagicode/hagilight-core/favicon';
+import sharedFaviconUrl from '@hagicode/hagilight-core/favicon.ico';
 import '../styles/status.css';
 
 interface Props {
@@ -10,6 +12,10 @@ interface Props {
 }
 
 const { title, description, wide = false } = Astro.props;
+
+// hagilightFavicon() only edits Astro's config head, which this layout does not render. The shared
+// icon is therefore supplied here, through SEOHead, so the page links it.
+const faviconEntry = resolveFaviconHeadEntry([], { href: sharedFaviconUrl });
 ---
 
 <!doctype html>
@@ -17,7 +23,7 @@ const { title, description, wide = false } = Astro.props;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <SEOHead page={{ title, description }} />
+    <SEOHead page={{ title, description }} head={faviconEntry ? [faviconEntry] : []} />
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to service status</a>

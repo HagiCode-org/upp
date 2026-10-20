@@ -93,7 +93,7 @@ Interpreting the numbers:
 
 `.github/workflows/monitor.yml`:
 
-- Triggers: `schedule` (`*/5 * * * *`) and `workflow_dispatch`, both on `main` only. Pull request events never run it.
+- Triggers: `schedule` (`3/5 * * * *`, every five minutes offset by three) and `workflow_dispatch`, both on `main` only. Pull request events never run it.
 - Permissions: `contents: read` and `actions: read`. No write access and no hosting credentials.
 - Concurrency group `site-availability-monitor` with `cancel-in-progress: false`, so one checkpoint writer runs at a time. Delayed or queued runs produce gaps, not synthetic observations.
 - Steps: `npm ci`, `npm run monitor` (validation, restore, checks, snapshot), `npm run release-check` (release hashes, see below), `npm run build`, then staging of `checkpoint.json` and `dist/`, then upload. The upload runs only after every earlier step succeeds.

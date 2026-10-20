@@ -10,7 +10,7 @@ const indexOf = (predicate) => steps.findIndex(predicate);
 
 test('the workflow runs only on schedule and manual default-branch invocations', () => {
   assert.deepEqual(Object.keys(workflow.on).sort(), ['schedule', 'workflow_dispatch']);
-  assert.equal(workflow.on.schedule[0].cron, '*/5 * * * *');
+  assert.equal(workflow.on.schedule[0].cron, '3/5 * * * *');
   assert.match(job.if, /refs\/heads\/main/);
   assert.equal(job.env.UPP_DEFAULT_BRANCH, 'main');
   assert.equal(JSON.stringify(workflow).includes('pull_request'), false);

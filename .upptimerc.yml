@@ -325,6 +325,25 @@ sites:
     slug: fullstack-rss
     expectedStatusCodes: [200]
     __dangerous__body_down_if_text_missing: "<rss"
+  - name: HagiCode Gallery
+    url: https://gallery.hagicode.com/
+    slug: hagicode-gallery
+    expectedStatusCodes: [200]
+  - name: HagiCode Gallery Sitemap
+    url: https://gallery.hagicode.com/sitemap-index.xml
+    slug: hagicode-gallery-sitemap
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "http://www.sitemaps.org/schemas/sitemap/0.9"
+  - name: HagiCode Gallery Robots
+    url: https://gallery.hagicode.com/robots.txt
+    slug: hagicode-gallery-robots
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "User-agent:"
+  - name: HagiCode Gallery RSS
+    url: https://gallery.hagicode.com/rss.xml
+    slug: hagicode-gallery-rss
+    expectedStatusCodes: [200]
+    __dangerous__body_down_if_text_missing: "<rss"
 
 status-website:
   cname: status.hagicode.com

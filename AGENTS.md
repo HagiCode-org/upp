@@ -27,7 +27,7 @@ npm run release-check    # compare registered repos' main head vs published comm
 
 ## Key Paths
 
-- `src/lib/`: status/release-hash domain logic (`status.mjs`, `load-status.mjs`, `release-hash.mjs`, `load-release-hash.mjs`, `present.mjs`, `wall.mjs`, `wall-charts.mjs`)
+- `src/lib/`: status/release-hash domain logic (`status.mjs`, `load-status.mjs`, `release-hash.mjs`, `load-release-hash.mjs`, `paths.mjs`, `present.mjs`, `wall.mjs`, `wall-charts.mjs`)
 - `src/pages/`: `index.astro` (status wall), `status.json.ts`, `release-hashes.astro`, `release-hash.json.ts`
 - `src/components/status/`, `src/components/wall/`: Astro/UI components
 - `src/data/release-repositories.json`: registry of repositories compared by the release-hash check

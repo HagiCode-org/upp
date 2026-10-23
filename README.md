@@ -1,6 +1,6 @@
 # upp
 
-Static status page for HagiCode sites. A scheduled GitHub Actions workflow checks each enabled site, keeps a bounded history in an Actions artifact, and builds an Astro page that shows the last observed results. The page reuses the shared presentation from [`@hagicode/hagilight`](https://www.npmjs.com/package/@hagicode/hagilight) (pinned to `0.13.0`).
+Static status page for HagiCode sites. A scheduled GitHub Actions workflow checks each enabled site, keeps a bounded history in an Actions artifact, and builds an Astro page that shows the last observed results. The page reuses the shared presentation from [`@hagicode/hagilight`](https://www.npmjs.com/package/@hagicode/hagilight) (pinned to `0.15.1`).
 
 Outages are recorded as data. The workflow fails only for configuration, history, validation, or build problems.
 

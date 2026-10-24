@@ -1,8 +1,8 @@
 # upp
 
-Static status page for HagiCode sites. A scheduled GitHub Actions workflow checks each enabled site, keeps a bounded history in an Actions artifact, and builds an Astro page that shows the last observed results. The page reuses the shared presentation from [`@hagicode/hagilight`](https://www.npmjs.com/package/@hagicode/hagilight) (pinned to `0.15.1`).
+Static status page for HagiCode sites. It shows whether each monitored site is up, how fast it responds, its availability over the last 30 days and its recent checks, and whether each site's published build matches its repository `main`.
 
-Outages are recorded as data. The workflow fails only for configuration, history, validation, or build problems.
+Each result is the last observed check. Availability covers observed checks only, and an overdue result is not a new outage. Outages are recorded as data.
 
 ## Install and commands
 
@@ -14,7 +14,7 @@ npm run monitor     # probe enabled sites and write .monitor-data/
 npm run release-check  # compare each repository's main head with its published commit
 ```
 
-Node 24 or later is required. Installing `@hagicode/hagilight` pulls in its Astro integration; the Astro version it supports is `>=7`.
+Node 24 or later is required.
 
 ### Local no-data preview
 
@@ -26,7 +26,7 @@ To render a real snapshot locally, run `npm run monitor` first (it probes the co
 
 The site list is read from a manifest in the existing Upptime layout (`sites:` with `name`, `url`, and optional `slug`, `expectedStatusCodes`, `method`, `headers`, `timeoutMs`, `maxAttempts`, `enabled`). Set the path with `UPP_SITE_MANIFEST`. The default is `.upptimerc.yml` at the package root.
 
-The repository includes `.upptimerc.yml`, copied from `repos/upptime/.upptimerc.yml`, so the default monitor and build commands work without a path override. The site list and Upptime body-text checks are preserved. Top-level Upptime metadata is retained for reference; it does not configure this Astro site's presentation or deployment.
+The repository includes `.upptimerc.yml`, so the default monitor and build commands work without a path override. The site list and Upptime body-text checks are preserved. Top-level Upptime metadata is retained for reference; it does not configure this Astro site's presentation or deployment.
 
 | Key | Meaning |
 | --- | --- |
@@ -58,21 +58,6 @@ Monitoring needs every secret referenced by an enabled target. Missing secrets f
 - Failure categories: `unexpected-status`, `missing-body-text`, `timeout`, `dns`, `tls`, `redirect`, `network`.
 - Exit codes: `0` when the run completes, including when sites are down. `2` for configuration or preflight problems, such as a missing secret, an unsupported key, or a worst-case probe time over the run budget. `1` for history access, history data, runner, or validation failures.
 
-## History and checkpoints
-
-Each completed scheduled or manual run on `main` writes one artifact named `site-availability-<run-id>-<run-attempt>`. It contains:
-
-- `checkpoint.json` (schema version 1): run key `<run-id>:<run-attempt>`, generation time, continuity metadata, and per-series observations.
-- `dist/`: the static page and `status.json`, built from the same validated snapshot.
-
-The restore step selects the newest eligible run (completed, successful, default branch, `schedule` or `workflow_dispatch`). The history window is 30 days. Observations are deduplicated by run and pruned outside the window.
-
-- If no eligible run exists, the run is a first run (`historyResetReason: "first-run"`).
-- If the newest eligible artifact has expired or been removed, the window restarts (`"expired-or-unavailable"`).
-- Access denied, API failures, corrupt archives, and incompatible schema versions fail the run. They are never treated as empty history.
-
-Artifact retention is requested as 30 days. The effective retention is whatever the repository's Actions policy allows. An expired artifact after a long gap is an explicit history loss.
-
 ## Public snapshot (`status.json`)
 
 The page and `status.json` come from the same validated snapshot. Fields:
@@ -89,23 +74,6 @@ Interpreting the numbers:
 - A result is a last observation. When `generatedAt` or the visitor's clock is more than 15 minutes past a site's latest observation, the page marks it overdue. An overdue result is not a new outage.
 - A snapshot with a `runKey` must contain this run's observation for every enabled site. A malformed or incomplete supplied snapshot fails the build; it never becomes an empty page.
 
-## Monitoring workflow
-
-`.github/workflows/monitor.yml`:
-
-- Triggers: `schedule` (`3/5 * * * *`, every five minutes offset by three) and `workflow_dispatch`, both on `main` only. Pull request events never run it.
-- Permissions: `contents: read` and `actions: read`. No write access and no hosting credentials.
-- Concurrency group `site-availability-monitor` with `cancel-in-progress: false`, so one checkpoint writer runs at a time. Delayed or queued runs produce gaps, not synthetic observations.
-- Steps: `npm ci`, `npm run monitor` (validation, restore, checks, snapshot), `npm run release-check` (release hashes, see below), `npm run build`, then staging of `checkpoint.json` and `dist/`, then upload. The upload runs only after every earlier step succeeds.
-- Timeouts: the job has a 15-minute limit. The probe budget is 10 minutes (`UPP_RUN_BUDGET_MS`), and the release-hash check has 2 minutes (`UPP_RELEASE_CHECK_BUDGET_MS`).
-- Secrets: none are referenced today. Add each referenced secret to the monitor step's `env` as the target's `secret` name.
-
-To run it manually, use **Actions → Site availability monitor → Run workflow** on `main`. Manual runs use the same configuration and output as scheduled runs.
-
-Scheduled runs are best effort. GitHub may delay or skip them, so timestamps and sample counts show what was actually observed.
-
-Download the output from the run's **Artifacts** section as `site-availability-<run-id>-<run-attempt>`. The archive contains `checkpoint.json` at its root and the static site under `dist/`.
-
 ## Homepage data wall
 
 The homepage reads the same validated snapshot as `status.json` and draws it as a wall instead of a list of services. Nothing on it is measured separately.
@@ -116,7 +84,7 @@ The homepage reads the same validated snapshot as `status.json` and draws it as 
 - **Service board:** probes grouped into families by display name (`Docs`, `Docs Sitemap`, `Docs Robots`, `Docs RSS` form one row). Families with a down probe come first. A row opens to the full per-probe facts and recent checks.
 - **Sync check:** one square per repository, mismatches first, with the same counts and link as before.
 
-The charts are static SVG. `d3-scale` and `d3-shape` run only at build time and compute geometry in `src/lib/wall-charts.mjs`. Derived series live in `src/lib/wall.mjs`. The page ships a few lines of script for freshness and for the hover or focus readout. Every value is also present as text or in a visually hidden table, and the entrance animation is skipped under `prefers-reduced-motion`.
+The charts are static SVG. Every value is also present as text or in a visually hidden table, and the entrance animation is skipped under `prefers-reduced-motion`.
 
 Grouping uses the display names, so renaming a probe can move it to another row. It never changes a probe's identity or history.
 
@@ -172,19 +140,7 @@ The snapshot is written to `.monitor-data/release-hash.json` (or `UPP_MONITOR_OU
 
 ### Assumptions
 
-- Compared repositories are public and readable with the workflow's `GITHUB_TOKEN`. A private or missing repository shows as `unknown` with `github-not-found`.
+- Compared repositories are public and readable with `GITHUB_TOKEN`. A private or missing repository shows as `unknown` with `github-not-found`.
 - Every compared site serves `/.well-known/hagilight.metadata.json` with `schemaVersion` 1. A site that does not is shown as `unknown`, never as a mismatch.
 - Origins are HTTPS. Redirects are followed at most five times, and each hop must also be HTTPS.
 - Results are point-in-time observations. There is no history, and a site caught mid-deploy can show a short-lived mismatch until the next run.
-
-## Branch-based publication
-
-`.github/workflows/deploy-gh-pages.yml` publishes the validated artifact to `gh-pages`, following the OpenSpec Docs publication pattern. The branch contains `dist/` and `wrangler.jsonc` (Worker name `upp`).
-
-- Triggers: `workflow_run` after a successful `Site availability monitor` run on `main`, and `workflow_dispatch` (optional `run_id`; default is the latest successful monitor run).
-- It downloads the monitor artifact and publishes that `dist/`. It does not rebuild or probe, so the published page is exactly what the monitor validated. Checkpoints stay in Actions artifacts and are not published to the branch.
-- Only the publisher has `contents: write`; the monitor remains read-only. Publication uses the built-in `GITHUB_TOKEN`, with no Cloudflare account ID or API token secrets.
-
-Connect the Cloudflare project's Git integration to the `gh-pages` branch. The output is already built: use no install/build step (or a no-op where required), and deploy the root `wrangler.jsonc` with assets in `dist/`. Configure the custom domain in the hosting dashboard. A successful GitHub publication confirms the branch update; the hosting platform manages the subsequent deployment.
-
-Each publication replaces `gh-pages` with a single latest commit (`force_orphan: true`), matching OpenSpec Docs. To roll back, publish a previous successful monitor run using `run_id`; do not rely on branch history. Organization policy must allow the publisher's `GITHUB_TOKEN` to write repository contents.

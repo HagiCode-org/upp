@@ -16,7 +16,7 @@
     "astro": "^7.4.0"
   },
   "scripts": {
-    "build": "astro build",
+    "build": "export NODE_OPTIONS=\"${NODE_OPTIONS:-} --max-old-space-size=8192\"; astro build",
     "dev": "astro dev",
     "monitor": "node scripts/monitor/run.mjs",
     "release-check": "node scripts/release-hash/run.mjs",

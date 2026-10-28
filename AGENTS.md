@@ -15,15 +15,15 @@ Run commands from `repos/upp/`.
 ## Key Commands
 
 ```bash
-npm ci
-npm run dev
-npm run build
-npm test
-npm run monitor          # probe enabled sites, write .monitor-data/
-npm run release-check    # compare registered repos' main head vs published commit
+pnpm install
+pnpm run dev
+pnpm run build
+pnpm test
+pnpm run monitor          # probe enabled sites, write .monitor-data/
+pnpm run release-check    # compare registered repos' main head vs published commit
 ```
 
-`npm run build` with no `.monitor-data/status.json` renders every site in the explicit no-data state and makes no network requests; only `npm run monitor` probes sites. `npm test` runs `node --test` over `tests/**/*.test.mjs`.
+`pnpm run build` with no `.monitor-data/status.json` renders every site in the explicit no-data state and makes no network requests; only `pnpm run monitor` probes sites. `pnpm test` runs `node --test` over `tests/**/*.test.mjs`.
 
 ## Key Paths
 
@@ -44,8 +44,15 @@ npm run release-check    # compare registered repos' main head vs published comm
 - `status.json` / `release-hash.json` are built only from a validated snapshot; a malformed or incomplete snapshot fails the build rather than producing a partial page.
 - Response bodies are read only for configured body-text checks and are never stored; secrets referenced by `headers.secret` are read from environment variables, never written to output.
 - Keep `@hagicode/hagilight` and `@hagicode/hagilight-core` pinned to the same exact version.
-- To add a release-hash target, append an entry to `src/data/release-repositories.json` with a unique `id` and an exact HTTPS `origin` (no path/query/credentials), then run `npm run release-check` locally with `GITHUB_TOKEN` set.
+- To add a release-hash target, append an entry to `src/data/release-repositories.json` with a unique `id` and an exact HTTPS `origin` (no path/query/credentials), then run `pnpm run release-check` locally with `GITHUB_TOKEN` set.
 
 ## References
 
 - `README.md`
+
+## Package management
+
+- The repository uses pnpm, pinned in `package.json` `packageManager`. Run `corepack enable` once, then `pnpm install`. `pnpm-lock.yaml` is the only lockfile; do not commit `package-lock.json`.
+- Settings live in `pnpm-workspace.yaml`. `allowBuilds` lists the dependencies whose install scripts may run (reviewed individually, `false` means reviewed and denied); review any new dependency that has an install script and add it there.
+- A local registry mirror belongs in `~/.npmrc` only. Never commit a `registry=` line or a mirror URL; `pnpm run check:registry` (also run in CI) fails on any non-`registry.npmjs.org` `tarball` in the lockfile and on mirror hosts in tracked files.
+- Undeclared imports fail under pnpm's strict layout: declare the package instead of hoisting it.

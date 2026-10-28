@@ -7,20 +7,20 @@ Each result is the last observed check. Availability covers observed checks only
 ## Install and commands
 
 ```sh
-npm ci              # installs from package-lock.json
-npm test            # node --test over tests/**
-npm run build       # astro build into dist/
-npm run monitor     # probe enabled sites and write .monitor-data/
-npm run release-check  # compare each repository's main head with its published commit
+pnpm install              # installs from package-lock.json
+pnpm test            # node --test over tests/**
+pnpm run build       # astro build into dist/
+pnpm run monitor     # probe enabled sites and write .monitor-data/
+pnpm run release-check  # compare each repository's main head with its published commit
 ```
 
 Node 24 or later is required.
 
 ### Local no-data preview
 
-`npm run build` with no `.monitor-data/status.json` renders every enabled site in the explicit no-data state (`No data`, `No monitoring snapshot is present in this build`). Building and viewing the page make no monitoring requests. Only `npm run monitor` probes sites.
+`pnpm run build` with no `.monitor-data/status.json` renders every enabled site in the explicit no-data state (`No data`, `No monitoring snapshot is present in this build`). Building and viewing the page make no monitoring requests. Only `pnpm run monitor` probes sites.
 
-To render a real snapshot locally, run `npm run monitor` first (it probes the configured sites over the network) and then `npm run build`.
+To render a real snapshot locally, run `pnpm run monitor` first (it probes the configured sites over the network) and then `pnpm run build`.
 
 ## Configuration
 
@@ -98,7 +98,7 @@ The service status homepage shows a compact sync check entry directly after the 
 
 The compared repositories are listed in `src/data/release-repositories.json`. Each entry has an `id` (lowercase, unique), a `name`, a GitHub `repository` as `owner/name`, `branch` (always `main`), and an `origin`. The origin must be an exact HTTPS origin: no path, query, fragment, trailing slash, or credentials. Invalid entries fail the check before any request is sent.
 
-To add a repository, append an entry with a new `id`, make sure its site emits the well-known metadata file, and run `npm run release-check` locally with `GITHUB_TOKEN` set. Set `UPP_RELEASE_REGISTRY` to a different file to test a candidate registry without editing the committed one.
+To add a repository, append an entry with a new `id`, make sure its site emits the well-known metadata file, and run `pnpm run release-check` locally with `GITHUB_TOKEN` set. Set `UPP_RELEASE_REGISTRY` to a different file to test a candidate registry without editing the committed one.
 
 ### States and reasons
 
@@ -121,7 +121,7 @@ The file never contains tokens or response bodies. Reasons are fixed categories,
 ### Running the check
 
 ```sh
-npm run release-check
+pnpm run release-check
 ```
 
 The check reads `GITHUB_TOKEN` when it is set, and sends it only to `api.github.com`. Without a token, GitHub's anonymous rate limit applies and rate-limited repositories show as `unknown`. Each repository gets up to two attempts for timeouts and network errors only, with an 8-second timeout per request and four repositories at a time. The whole check must finish inside `UPP_RELEASE_CHECK_BUDGET_MS` (default `120000`). The worst case is checked before any request, so an impossible budget fails early.
@@ -136,7 +136,7 @@ The snapshot is written to `.monitor-data/release-hash.json` (or `UPP_MONITOR_OU
 
 ### Local preview
 
-`npm run build` without `.monitor-data/release-hash.json` renders every repository as `No data`, with no GitHub or site requests. A malformed or invalid file fails the build. To preview real results, run `npm run release-check` first, which makes network requests, and then `npm run build`.
+`pnpm run build` without `.monitor-data/release-hash.json` renders every repository as `No data`, with no GitHub or site requests. A malformed or invalid file fails the build. To preview real results, run `pnpm run release-check` first, which makes network requests, and then `pnpm run build`.
 
 ### Assumptions
 

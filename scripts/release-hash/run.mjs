@@ -1,4 +1,4 @@
-// Entry point behind `npm run release-check`. Compares each registered repository's main head with the commit
+// Entry point behind `pnpm run release-check`. Compares each registered repository's main head with the commit
 // its site publishes, validates the snapshot, and atomically replaces .monitor-data/release-hash.json.
 // Mismatches and unknowns are recorded as data and exit 0. Registry and preflight problems exit 2,
 // and validation or write failures exit 1.

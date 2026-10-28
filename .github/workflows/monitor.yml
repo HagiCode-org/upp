@@ -29,27 +29,38 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - uses: actions/setup-node@v6
         with:
           node-version: 24
-          cache: npm
-          cache-dependency-path: package-lock.json
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install from lockfile
-        run: npm ci
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify install and lockfile stability
+        run: |
+          test -d node_modules
+          git diff --exit-code -- pnpm-lock.yaml
+
+      - name: Registry neutrality
+        run: pnpm run check:registry
 
       # Referenced monitoring secrets are passed here only for the steps that probe sites.
       - name: Check sites, restore history and write checkpoint
-        run: npm run monitor
+        run: pnpm run monitor
 
       # Mismatches and unknowns are recorded as data. Only registry, budget or snapshot validation failures stop the job.
       - name: Check release hashes
         env:
           UPP_RELEASE_CHECK_BUDGET_MS: "120000"
-        run: npm run release-check
+        run: pnpm run release-check
 
       - name: Build static output from the validated snapshot
-        run: npm run build
+        run: pnpm run build
 
       # Runs only after the monitor and build steps succeed, so a failed run never packages a partial pair.
       - name: Stage checkpoint and static output

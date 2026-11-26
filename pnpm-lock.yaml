@@ -167,11 +167,11 @@ importers:
   .:
     dependencies:
       '@hagicode/hagilight':
-        specifier: 0.23.0
-        version: 0.23.0(astro@7.4.0(@types/node@24.19.2)(yaml@2.9.1))
+        specifier: 0.24.0
+        version: 0.24.0(astro@7.4.0(@types/node@24.19.2)(yaml@2.9.1))
       '@hagicode/hagilight-core':
-        specifier: 0.23.0
-        version: 0.23.0(astro@7.4.0(@types/node@24.19.2)(yaml@2.9.1))
+        specifier: 0.24.0
+        version: 0.24.0(astro@7.4.0(@types/node@24.19.2)(yaml@2.9.1))
       d3-scale:
         specifier: 4.0.2
         version: 4.0.2
@@ -381,16 +381,16 @@ packages:
   '@emnapi/wasi-threads@1.2.3':
     resolution: {integrity: sha512-ELEBe8PsLvvJ6QMr0zLt8ffvOHW/dc1m3CEzNMg7aJUv3bMaoDtw2TXyDAwkYBuroxxuHEwhRTLJSe5sya547g==}
 
-  '@hagicode/hagilight-core@0.23.0':
-    resolution: {integrity: sha512-+1hxcQvjf+uJ/h8em9bLF8a0YC57aHcjCzez7CA9R9YDiXSKUzij5lX/0ToGvBzDTFG4SZ5ZL3RQQ0cNsmoh8g==}
+  '@hagicode/hagilight-core@0.24.0':
+    resolution: {integrity: sha512-8ocMXsFMX4hm2HBdoOeUdNlTyMe8VY7NZtLpr4Q0FvYkgoytjz6o1Vq5EO942y5MIZIRP8RlmMaeejKZruW4ZA==}
     peerDependencies:
       astro: '>=7'
     peerDependenciesMeta:
       astro:
         optional: true
 
-  '@hagicode/hagilight@0.23.0':
-    resolution: {integrity: sha512-LGIUZ22RMijyHykuJ7Zm3sKSCxc1s2UT25mCx72aYedQBrCf/wDoP3BNum7JcjMtgB/IQcwBHnLNRQfpf2nBEA==}
+  '@hagicode/hagilight@0.24.0':
+    resolution: {integrity: sha512-RJG/lfOJ+1ywabXmygLLkknP+m0pW8skg4T4FAAtiTvPgxgJO7+ZSXXv2x4o5itS71CzqUidFWDMoEzsahBr9A==}
     peerDependencies:
       astro: '>=7'
 
@@ -1700,16 +1700,16 @@ snapshots:
       tslib: 2.8.1
     optional: true
 
-  '@hagicode/hagilight-core@0.23.0(astro@7.4.0(@types/node@24.19.2)(yaml@2.9.1))':
+  '@hagicode/hagilight-core@0.24.0(astro@7.4.0(@types/node@24.19.2)(yaml@2.9.1))':
     dependencies:
       '@astrojs/rss': 4.0.19
     optionalDependencies:
       astro: 7.4.0(@types/node@24.19.2)(yaml@2.9.1)
 
-  '@hagicode/hagilight@0.23.0(astro@7.4.0(@types/node@24.19.2)(yaml@2.9.1))':
+  '@hagicode/hagilight@0.24.0(astro@7.4.0(@types/node@24.19.2)(yaml@2.9.1))':
     dependencies:
       '@astrojs/sitemap': 3.7.4
-      '@hagicode/hagilight-core': 0.23.0(astro@7.4.0(@types/node@24.19.2)(yaml@2.9.1))
+      '@hagicode/hagilight-core': 0.24.0(astro@7.4.0(@types/node@24.19.2)(yaml@2.9.1))
       astro: 7.4.0(@types/node@24.19.2)(yaml@2.9.1)
 
   '@img/colour@1.1.0': {}

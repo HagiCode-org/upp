@@ -1,0 +1,8 @@
+{
+  "name": "upp",
+  "compatibility_date": "2026-05-04",
+  // Published alongside dist/ on gh-pages for branch-based Cloudflare hosting.
+  "assets": {
+    "directory": "./dist"
+  }
+}
